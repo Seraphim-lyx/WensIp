@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript">
+        function bulid(id,name){
+            $.post("/newmessage/",{"id":id,"name":name },function(data){
+                $("#mainright").animate({width:"98%"},"slow")
+                $("#mainright").css("margin-right","3px")
+                $("#mainleft").animate({width:"1%"},{complete:function(){
+                            $("#mainleft").css("display","none")
+                        }},
+                        "slow")
+                $(".openleft").css("display","block")
+              $("#mainright_table").html(data)
+            })
+        }
+    </script>
+</head>
+<body>
+<center><div style="font-size:50px;margin-top:50px;color: lightsteelblue">暂无信息</div>
+<div style="margin-top: 50px"><a href="#" style="font-size: 50px" class="link_new_message" onclick="bulid('{{ id }}','{{ name }}')">点此建立新信息</a></div>
+</center>
+</body>
+</html>

@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+    {% block headother %}
+    <link rel="stylesheet" type="text/css" href="/static/css/css.css"/>
+    {% endblock %}
+    {% block js %}
+    <script type="text/javascript">
+        function ShowOrganList(){
+            $("#OrganList").css("display","block");
+            $("#OrganList").load("/getOrganList/")
+        }
+        function ShowNextOrgan(rank,id){
+            $("#OrganList").load("/getNextOrgan/",{"rank":rank,"id":id})
+        }
+        function ChooseParent(name,id,rank){
+                $("#parent").val(name)
+                $("#parentID").val(id)
+                $("#parentRank").val(rank)
+                $("#OrganList").css("display","none")
+        }
+        function ChangeSelect(me,id){
+            var text=$(me).find("option:selected").text()
+            $("#"+id).val(text)
+            if(id=='circuit'){
+                if(text!='光纤专线'){
+                    $("input[name='PublicIP']").attr("disabled","true");
+                    $("input[name='PublicGATEWAY']").attr("disabled","true");
+
+                }
+                else{
+                    $("input[name='PublicIP']").removeAttr("disabled");
+                    $("input[name='PublicGATEWAY']").removeAttr("disabled");
+                }
+            }
+        }
+    </script>
+    {% endblock %}
+    {% block css %}
+    <style type="text/css">
+
+    </style>
+    {% endblock %}
+
+{% block col_right %}
+<form method="post" action="/CreateNewMessage/">
+    <input type="hidden" value="{{ id }}" name="myid"/>
+<div class="top">
+    <span>
+        <b>机构信息</b>
+        <span>温氏集团</span>
+        <span>机构层级：</span>
+        <select name="rank">
+            <option>请选择</option>
+            <option value="2">二级机构</option>
+            <option value="2.5">二级半机构</option>
+            <option value="3">三级机构</option>
+            <option value="4">四级机构</option>
+
+        </select>
+
+        <span><b>母公司</b></span>
+        <input type="text" onclick="ShowOrganList()" id="parent"/>
+        <input type="hidden" id="parentID" name="parentID"/>
+        <input type="hidden" id="parentRank" name="parentRank"/>
+        <span><b>机构名称：</b></span>
+        <input type="text" value="部门" name="department">
+
+    </span>
+    <span><b>机构代码：</b><input type="text" value="{{ organid }}" name="organid" id="ID"/> </span>
+</div>
+<div>
+    <div  class='table1'>
+        <h3>公网信息</h3>
+        <table border="1">
+            <tr>
+                <td>
+                    所属运营商
+                    <select id="SelectOperator" onchange="ChangeSelect(this,'operator')" class="dropkick" tabindex="1">
+                        <option>请选择</option>
+                        <option>电信</option>
+                        <option>联通</option>
+                        <option>移动</option>
+                        <option>局域网</option>
+                    </select>
+                </td>
+                <td>
+                    线路类型
+                    <select onchange="ChangeSelect(this,'circuit')" class="select">
+                        <option>请选择</option>
+                        <option>数字链路</option>
+                        <option>光纤专线</option>
+                        <option>拨号光纤</option>
+                        <option>ADSL</option>
+                        <option>其他</option>
+                    </select>
+                </td>
+                <td>下行带宽</td>
+                <td>上行带宽</td>
+                <td>公网IP/WAN口IP</td>
+                <td>公网网关/WAN口网关</td>
+                <td>所在地DNS</td>
+            </tr>
+            <tr>
+                <td><input type="text"  name='operator' id="operator"/></td>
+                <td><input type="text"  name="circuit" id="circuit"/></td>
+                <td><input type="text"  name="downlinkBandwidth"/></td>
+                <td><input type="text"  name="uplinkBandwidth"/></td>
+                <td><input type="text"  name="PublicIP"/></td>
+                <td><input type="text"  name="PublicGATEWAY"/></td>
+                <td><input type="text"  name="DNS"/></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='table2'>
+        <h3>内网信息</h3>
+        <table border="1">
+            <tr>
+                <td>
+                    设备型号
+                    <select onchange="ChangeSelect(this,'IAD')">
+                        <option>请选择</option>
+                        <option>AR2809</option>
+                        <option>AR2811</option>
+                        <option>AR2831</option>
+                        <option>MSR3010</option>
+                        <option>ER3100</option>
+                        <option>5GT</option>
+                        <option>318</option>
+                        <option>其他</option>
+                    </select>
+                </td>
+
+                <td>内网段<input type="button" value='add' class='addnote' onclick="addtext('Diagram','20px')"/></td>
+                <td>内网网关<input type="button" value='add' class='addnote' onclick="addtext('GATEWAY','20px')"/></td>
+                <td>上网管理设备</td>
+                <td>设备互联网段</td>
+                <td>设备互联网段IP</td>
+                <td>设备管理信息</td>
+
+            </tr>
+            <tr>
+                <td><input type="text"  name="IAD" id="IAD"/></td>
+
+                <td class='Diagram'>
+
+                        <input type="text"  name="Diagram"/>
+
+                </td>
+
+                <td class='GATEWAY'>
+
+                        <input type="text" name="GATEWAY"/>
+
+
+                </td>
+                <td><input type="text"  name="networkSupervisor"/> </td>
+                <td><input type="text" name="networkSupervisorIP"/> </td>
+                <td><input type="text"  name="deviceDiagram"/> </td>
+                <td><input type="text"  name="deviceManagement"/> </td>
+
+
+            </tr>
+            <tr>
+                <td colspan="7">LoopbackIP</td>
+            </tr>
+            <tr>
+                <td colspan="7"><input type="text" name="LoopbackIP"/> </td>
+            </tr>
+            <tr>
+
+                <td colspan="7">设备服务:
+                    snmp:<input type="checkbox" value="snmp" name="deviceService" id="snmp">
+                    https:<input type="checkbox" value="https" name="deviceService" id="https">
+                    telnet:<input type="checkbox" value="telnet" name="deviceService" id="telnet">
+                    ssh:<input type="checkbox" value="ssh" name="deviceService" id="ssh">
+                    http:<input type="checkbox" value="http" name="deviceService" id="http">
+                    ntp:<input type="checkbox" value="ntp" name="deviceService" id="ntp">
+                    ftp:<input type="checkbox" value="ftp" name="deviceService" id="ftp">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='table3'>
+        <h3>VPN信息</h3>
+        <table border="1">
+            <tr>
+                <td>IKE local-name/<br/>peerID/<br/>local identify data<br/><input type="button" value="自动生成" onclick="setkey('peerID')" class='make'/> </td>
+                <td>Tunnel0</td>
+                <td>Tunnel1</td>
+                <td>gre key<br/><input type="button" value="自动生成" onclick="makegrekey()" class='make'/></td>
+                <td>ike-<br/>preshare-key</td>
+                <td>中心端 "ike peer"/<br/>终端 "policy name" <br/><input type="button" value="自动生成" onclick="setkey('IkePeer')" class='make'/></td>
+                <td>中心端<br/>tunnel号</td>
+            </tr>
+
+            <tr>
+                <td><input type="text"  name="peerID" id="peerID"/> </td>
+                <td><input type="text"  name="Tunnel0"/> </td>
+                <td><input type="text"  name="Tunnel1"/> </td>
+                <td><input type="text"  name="grekey" id="grekey"/> </td>
+                <td><input type="text" value="系统生成" disabled/> </td>
+                <td><input type="text"  name="terminalIkePeer" id="IkePeer"/> </td>
+                <td><input type="text"  name="centerTunnel"/> </td>
+            </tr>
+            <tr>
+                <td>中心端ipsec <br/>policy-template<br/>模板号</td>
+                <td>中心端"NQA"<br/> "delect-group"</td>
+                <td>username</td>
+                <td>当前密码</td>
+                <td>历史密码</td>
+                <td>当前SSH证书</td>
+                <td>历史SSH证书</td>
+
+            </tr>
+            <tr>
+                <td><input type="text"  name="centerTemplate"/> </td>
+                <td><input type="text"  name="centerNQA"/> </td>
+                <td><input type="text"  name="username"/> </td>
+                <td><input type="text"  name="currentPassword"/> </td>
+                <td class='historicalPassword'><input type="text"  name="historicalPassword"/> </td>
+                <td><input type="text"  name="currentSSH"/> </td>
+                <td class='historicalSSH'><input type="text"  name="historicalSSH"/> </td>
+            </tr>
+        </table>
+    </div>
+    <div class='table4'>
+        <h3>其他信息</h3>
+        <table border="1">
+            <tr>
+                <td>nat情况</td>
+                <td width="550px">备注<input type="button" value='add' class='addnote add' onclick="addtext('note','60px')"/> </td>
+                <td>配置文件</td>
+
+            </tr>
+            <tr>
+                <td><input type="text" name="nat"/> </td>
+                <td class='note'>
+
+                        <input type="text" name="note" size="120px"/>
+
+                </td>
+                <td><input type="file"  name="config"/> </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+
+    <input type="submit" value="click" class='post submit' />
+</form>
+<div id="OrganList" style="background-color:white;height: 250px;width: 400px;position: fixed;left: 200px;top: 200px;display: none">
+
+
+</div>
+{% endblock %}
+
+

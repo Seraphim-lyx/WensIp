@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block js %}
+
+{% endblock %}
+{% block css %}
+    <style type="text/css">
+    #OptionIndex li{
+    margin-top: 20px;
+    margin-right: 20px;
+    font-size: 17px;
+    }
+    #OptionIndex li a{
+    text-decoration: none;
+    color: #0E5887;
+    font-weight: bold;
+    }
+    th,td{
+    width: 200px;
+    height: 25px;
+    text-align: center;
+    }
+    </style>
+{% endblock %}
+{% block col_right %}
+<div>
+    <div style="float: left">
+        <div style="border-bottom: 1px #000000 solid;margin-top: 20px;">
+            <a href="#" onclick="javascript:AddOption.style.display='block'" style="font-size: 25px;color:#FFA84C;padding-left: 25px; ">新增选项</a>
+        </div>
+        <ul id="OptionIndex">
+            <li><a href="/GetOptionList/?type=1">所属运营商</a></li>
+            <li><a href="/GetOptionList/?type=2">线路类型</a></li>
+            <li><a href="/GetOptionList/?type=3">设备厂商</a></li>
+        </ul>
+    </div>
+    <div id="OptionList" style="border-left: 1px #000000 solid;float: left;min-height: 500px;">
+        <table style="margin-left: 150px;">
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>删除</th>
+            </tr>
+            {% for i in abs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ i.name }}</td>
+                <td><a href="#" onclick="javascript:top.location.href='/DelOption/?id={{ i.id }}'">删除</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+    <div id="AddOption" style="display: none;border: 1px #000000 solid;position: fixed;left:450px;top:250px;width:250px;height: 180px;background-color: white;">
+        <div style="float: right;">
+            <a href="#" onclick="javascript:AddOption.style.display='none'">
+            <img src="/static/pic/close.jpg"/>
+            </a>
+        </div>
+        <form method="post" action="/AddOption/">
+        <p>
+            <span>选项类型：</span>
+            <select name="type">
+                <option>请选择</option>
+                <option value="1">所属运营商</option>
+                <option value="2">线路类型</option>
+                <option value="3">设备厂商</option>
+            </select>
+        </p>
+        <p>
+            <span>选项名称：</span>
+            <input type="text" name="name"/>
+        </p>
+        <p>
+            <input type="submit" value="提交"/>
+        </p>
+        </form>
+    </div>
+{% endblock %}

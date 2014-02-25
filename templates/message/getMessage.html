@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+    {% block headother %}
+
+    {% endblock %}
+    {% block js %}
+    <script type="text/javascript">
+
+
+        function download(id,name){
+            top.location.href="/DownLoad?id="+id+"&name="+name
+
+        }
+
+
+
+        function excel(filetype)
+        {
+            var url = location.href;
+            var str = "&"+url.split("?")[1];
+            top.location.href="/excelfile?filetype="+filetype+str;
+        }
+        function createVPN()
+        {
+            var url = location.href;
+            var str = "?"+url.split("?")[1];
+            top.location.href = "/vpn"+str
+        }
+
+
+    </script>
+    {% endblock %}
+    {% block css %}
+    <style type="text/css">
+        table{
+            margin-left: 60px;
+            font-weight: bold;
+        }
+        h3{
+            margin-left: 60px;
+        }
+        td{
+            height: 20px;
+        }
+        .table1,.table2,.table3,.table4{
+            max-width: 900px;
+        }
+         .table1
+        {
+
+            background-color: lightgreen;
+        }
+        .table2
+        {
+
+            background-color: pink;
+        }
+        .table3
+        {
+            background-color: lightsalmon;
+        }
+        .table4
+        {
+            background-color:lightblue;
+
+        }
+
+    </style>
+    {% endblock %}
+    {% block col_right%}
+<div class='main' style="margin-left: 50px;border-left: 1px #EEEEEF solid">
+
+<div class="top" style="font-size: 25px;">
+    <span><b>机构名称</b>：{{ cursor.name }}</span>
+
+    <span style="margin-left: 200px;"><b>机构代码</b>：{{ cursor.organizeid }}</span>
+
+</div>
+<div>
+    <div  class='table1'>
+        <h3>公网信息</h3>
+        <table border="1">
+            <tr>
+                <td>所属运营商</td>
+                <td>线路类型</td>
+                <td>下行带宽</td>
+                <td>上行带宽</td>
+                <td>公网IP/WAN口IP</td>
+                <td>公网网关/WAN口网关</td>
+                <td>所在地DNS</td>
+            </tr>
+            <tr>
+                <td>{{ cursor.operator }}</td>
+                <td>{{ cursor.circuit }}</td>
+                <td>{{ cursor.downlinkBandwidth }}</td>
+                <td>{{ cursor.uplinkBandwidth }}</td>
+                <td>{{ cursor.PublicIP }}</td>
+                <td>{{ cursor.PublicGATEWAY }}</td>
+                <td>{{ cursor.DNS }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='table2'>
+        <h3>内网信息</h3>
+        <table border="1">
+            <tr>
+                <td>接入设备类型</td>
+                <td>网络管理设备</td>
+                <td>内网段</td>
+                <td>内网网关</td>
+                <td>设备互联网段</td>
+                <td>设备管理信息</td>
+                <td>LookbackIP</td>
+            </tr>
+            <tr>
+                <td>{{ cursor.IAD }}</td>
+                <td>{{ cursor.networkSupervisor }}</td>
+                <td class='Diagram'>
+                    {% for values in cursor.intranetDiagram %}
+                        {{ values }}
+                        <br/>
+                    {% endfor %}
+                </td>
+
+                <td class='GATEWAY'>
+                    {% for values in cursor.intranetGATEWAY %}
+                        {{ values }}
+                        <br/>
+                    {% endfor %}
+                </td>
+                <td>{{ cursor.deviceDiagram }} </td>
+                <td>{{ cursor.deviceManagement }} </td>
+                <td>{{ cursor.LookbackIP }}</td>
+
+            </tr>
+            <tr>
+                <td colspan="7">设备服务:
+                    {% for i in cursor.deviceService %}
+                        {{ i }} &nbsp;
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='table3'>
+        <h3>VPN信息</h3>
+        <table border="1">
+            <tr>
+                <td>IKE local-name/<br/>peerID/<br/>local identify data</td>
+                <td>Tunnel0</td>
+                <td>Tunnel1</td>
+                <td>gre key</td>
+                <td>ike-<br/>preshare-key</td>
+                <td>中心端 "ike peer"/<br/>终端 "policy name"</td>
+                <td>中心端<br/>tunnel号</td>
+            </tr>
+
+            <tr>
+                <td>{{ cursor.peerID }}</td>
+                <td>{{ cursor.Tunnel0 }} </td>
+                <td>{{ cursor.Tunnel1 }}</td>
+                <td>{{ cursor.grekey}}</td>
+                <td>{{ cursor.ike_preshare_key }} </td>
+                <td>{{ cursor.terminalIkePeer }}</td>
+                <td>{{ cursor.centerTunnel }} </td>
+            </tr>
+            <tr>
+                <td>中心端ipsec <br/>policy-template<br/>模板号</td>
+                <td>中心端"NQA"<br/> "delect-group"</td>
+                <td>username</td>
+                <td>当前密码</td>
+                <td>历史密码</td>
+                <td>当前SSH证书</td>
+                <td>历史SSH证书</td>
+
+            </tr>
+            <tr>
+                <td>{{ cursor.centerTemplate }}</td>
+                <td>{{ cursor.centerNQA }}</td>
+                <td>{{ cursor.username }} </td>
+                <td>{{ cursor.currentPassword }}</td>
+                <td class='historicalPassword'>
+                    {% for values in cursor.historicalPassword %}
+                    {{ values }}
+                    {% endfor %}
+                </td>
+                <td>{{ cursor.currentSSH }}</td>
+                <td class='historicalSSH'>
+                    {% for values in cursor.historicalSSH %}
+                    {{ values }}
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class='table4'>
+        <h3>其他信息</h3>
+        <table border="1">
+            <tr>
+                <td>nat情况</td>
+                <td width="550px">备注</td>
+                <td>配置文件</td>
+
+            </tr>
+            <tr>
+                <td>{{  cursor.nat }} </td>
+                <td class='note'>
+                    {% for values in cursor.note %}
+                        {{ values }}
+                        <br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for f in files %}
+                        {{ f }} <input type='button' onclick="download('{{ cursor.ID }}','{{ f }}')" value="下载"/>
+                    {% endfor %}
+                </td>
+            </tr>
+
+        <!--分割线-------------------------------------------------------------------->
+        <tr>
+            <td><input type="button" value="junniper文件" onclick="excel(1)"/></td>
+            <td><input type="button" value="h3c文件" onclick="excel(0)"/></td>
+            <td><input type="button" value="vpn文件" onclick="createVPN()"/></td>
+        </tr>
+        </table>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html>
+<head>
+    <title></title>
+    {% block headother %}
+    {% endblock %}
+    <script src="/static/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+    {% block js %}
+    {% endblock %}
+    {% block css %}
+    {% endblock %}
+    <style type="text/css">
+        a{
+            text-decoration: none;
+        }
+        li{
+            list-style-type: none;
+        }
+        .index a{
+            color: white;
+        }
+        #header{
+            /*顶部模块*/
+            height:80px;
+            background-image:url(/static/pic/head-bg.jpg);
+            background-repeat: repeat-x;
+            background-size: 3px;
+            font-size: 50px;
+            font-family: Lucida Handwriting;
+            color: white;
+            padding-left: 30px;
+            padding-top: 10px;
+        }
+        #col_left{
+            /*菜单模块*/
+            float: left;
+            width:13%;
+            height: 500px;
+            background-color:#C4EEFE;
+            border-right: 1px #96BFE3 solid;
+        }
+        #col_index{
+            margin-top: 50px;
+
+        }
+        #col_title{
+            filter: progid:DXImageTransform.Microsoft.Gradient(startColorStr='#0F5988',endColorStr='#4F91CB',gradientType='0');
+            background: -moz-linear-gradient(top, #0F5988, #4F91CB);
+            background: -o-linear-gradient(top#0F5988, #4F91CB);
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#0F5988), to(#4F91CB));
+            border: 1px #E8E8E8 solid;
+            border-radius: 5px;
+            text-align: center;
+            height:40px;
+            font-size: 25px;
+            color: #FFA96E;
+            font-weight: bold;
+            padding-top: 5px;
+        }
+        .index{
+            width: 100%;
+            height: 30px;
+            padding-top: 5px;
+            font-size: 20px;
+            background-color: #67A5E0;
+            margin-top: 5px;
+            text-align: center;
+            filter: progid:DXImageTransform.Microsoft.Gradient(startColorStr='#0F5988',endColorStr='#4F91CB',gradientType='0');
+            background: -moz-linear-gradient(top, #0F5988, #4F91CB);
+            background: -o-linear-gradient(top#0F5988, #4F91CB);
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#0F5988), to(#4F91CB));
+        }
+        .index:hover{
+            width: 96%;
+        }
+        #col_right{
+            min-height: 500px;
+            float: right;
+            width: 85%;
+            margin-right: 10px;
+        }
+        #footer{
+            height: 50px;
+            width: 100%;
+            border-top:1px #0E141B solid;
+            float: left;
+            text-align: center;
+            padding-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="header">WENS</div>
+        <div id="content">
+            <div id="col_left">
+                <div id="col_title">管理目录</div>
+                <div id="col_index">
+                    <div class="index"><a href="/OrganIndex/">机构管理</a></div>
+                    <div class="index"><a href="/GetOptionList/">选项管理</a></div>
+                    <div class="index"><a href="/SearchOrganList/">机构搜索</a></div>
+                </div>
+            </div>
+            <div id="col_right">
+                {% block col_right %}
+                {% endblock %}
+            </div>
+        </div>
+        <div id="footer">
+            @SCAU-935
+        </div>
+    </div>
+
+</body>
+</html>

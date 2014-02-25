@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load deal %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(function(){
+            $("#RankIndex li").click(function(){
+                var rank=$(this).attr("id")
+                top.location.href="/OrganIndex/?rank="+rank
+            })
+        })
+    </script>
+{% endblock %}
+{% block css %}
+    <style type="text/css">
+
+        #RankIndex li{
+            margin-top: 20px;
+            margin-right: 20px;
+            font-size: 17px;
+        }
+        #RankIndex li a{
+            text-decoration: none;
+            color: #0E5887;
+            font-weight: bold;
+        }
+        th,td{
+            width: 9%;
+            height: 25px;
+            text-align: center;
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block col_right %}
+    <div>
+    <div style="float: left;">
+        <div style="margin-top: 20px;text-align: center;border-bottom: 1px #000000 solid;">
+            <a href="/newmessage/" style="color:#FFA84C;font-size: 25px;">新建机构</a>
+        </div>
+        <ul id="RankIndex">
+            <li id="2"><a href="#">二级机构</a></li>
+            <li id="2.5"><a href="#">二级半机构</a></li>
+            <li id="3"><a href="#">三级机构</a></li>
+            <li id="4"><a href="#">四级机构</a></li>
+        </ul>
+
+    </div>
+    <div style="border-left: 1px #000000 solid;float: left;min-height: 500px;">
+    <table>
+        <tr>
+            <th>序号</th>
+            <th>公司名称</th>
+            <th>公司代号</th>
+            <th>查看信息</th>
+            <th>修改信息</th>
+            <th>子公司列表</th>
+            <th>删除</th>
+        </tr>
+        {% for i in organs %}
+        <tr style="background-color: {{ forloop.counter| remainder }}">
+
+            <td>{{ forloop.counter }}</td>
+            <td>{{ i.name }}</td>
+            <td>{{ i.organizeid }}</td>
+            <td><a href="/getMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">查看信息</a></td>
+            <td><a href="/setMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">修改信息</a></td>
+            <td><a href="/OrganNextIndex/?id={{ i.id }}&rank={{ i.message.rank }}">子公司列表</a></td>
+            <td><a href="/RemoveOrgan/?id={{ i.id }}&rank={{ i.message.rank }}">删除</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    </div>
+{% endblock %}

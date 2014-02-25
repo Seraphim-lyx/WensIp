@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+<link rel="stylesheet" type="text/css" href="/static/css/css.css"/>
+<script src="/static/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script src="/static/js/jquery.dropkick-1.0.0.js"></script>
+<script type="text/javascript">
+ var id
+$(function(){
+    $(".menu").click(function(){
+        $(this).parent("div").children("div").slideToggle("slow")
+        var id=this.id
+        var name=this.getElementsByTagName("span")[0].innerHTML
+        setid(id)
+        var text=$(this).text()
+        $(".title_word").text(text)
+        $.post("/message/",{"id":id,"name":name },function(data){
+            $("#mainright_table").html(data)
+        })
+    })
+    $(".openleft").click(function(){
+
+        $.post("/message/",{"id":id },function(data){
+            $('#mainright_table').html(data)
+        })
+        $("#mainright").animate({width:"68%"},"slow")
+        $("#mainleft").animate({width:"28%"},{complete:function(){
+            $("#mainleft").css("display","block")
+        }},"slow")
+        $(".openleft").css("display","none")
+
+    })
+    $(".SearchId").change(function(){
+        var id=$(this).val()
+        $.post("/SearchById/",{"id":id},function(data){
+            $("#mainright_table").html(data)
+        })
+    })
+    $(".SearchName").change(function(){
+        var name=$(this).val()
+        $.post("/SearchByName/",{"name":name},function(data){
+            $("#mainright_table").html(data)
+        })
+    })
+
+
+})
+function topage(id){
+    setid(id)
+    if(id!="None")
+    {
+    $.post("/message/",{"id":id},function(data){
+        $("#mainright_table").html(data)
+    })
+    }
+}
+function setid(id){
+      this.id=id
+}
+
+
+
+</script>
+</head>
+<body onload="topage('{{ id }}')">
+<div id="main">
+    <div id="maintop">
+        <div><span>wens</span></div>
+        <a class="exit" href="/Exit/">EXIT</a>
+
+    </div>
+    <div class="openleft"></div>
+    <div id="mainleft">
+
+    <div id="selecttext">
+        <span class="selecttitle">快速搜索</span>
+        <form>
+            <p><span class="texttitle">按公司名称搜索：</span><input type="text" name="name" class="SearchName"/></p>
+            <p><span class="texttitle">按公司代号搜索：</span><input type="text" name="id" class="SearchId"/> </p>
+        </form>
+    </div>
+    <div id="maintree">
+
+        <div class="firsttree"><a href="#" class='menu firstmenu'>温氏集团</a>
+            {% for second in dump.second %}
+                <div style="display: none" class="secondtree"><a href="#" class="menu secondmenu" id="{{ second.id }}">二级: <span class='callname'> {{ second.name }}</span></a>
+                    {% for third in second.third %}
+                        <div style="display: none" class="thirdtree"><a href="#" class="menu thirdmenu" id="{{ third.id }}">三级:<span class='callname'>{{ third.name }}</span></a>
+                        {% for forth in third.forth %}
+                            <div style="display:none" class="forthtree"><a href="#" class="menu forthmenu" id="{{ forth.id }}">四级:<span class='callname'>{{ forth.name }}</span></a>
+                            {% for fifth in forth.fifth %}
+                                <div style="display:none" class="fifthtree"><a href="#" class='menu fifthmenu' id="{{ fifth.id }}">五级:<span class='callname'>{{ fifth.name }}</span></a></div>
+                            {% endfor%}
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+    <div id="mainright">
+        <div id="mainright_title">
+            <span class="title_word"></span>
+        </div>
+        <div id="mainright_table">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

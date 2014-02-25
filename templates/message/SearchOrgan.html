@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load deal %}
+
+{% block css %}
+    <style type="text/css">
+        th,td{
+            width: 10%;
+            height: 25px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block col_right %}
+    <div>
+        <div style="float: left">
+            <form method="post" action="/SearchOrganList/" id="SearchForm">
+                <p><span><b style="color:#0E5887;">机构名称:</b></span><input type="text" name="name"/></p>
+                <p><span><b style="color:#0E5887;">机构代码:</b></span><input type="text" name="organid"/></p>
+                <p><a href="#" onclick="SearchForm.submit()" title="查询"><img src="/static/pic/search.png" width="30px;" style="float: right;"/></a></p>
+            </form>
+        </div>
+        <div style="min-height: 500px;border-left: 1px #000000 solid;float: right;">
+            <table>
+                <tr>
+                    <th>序号</th>
+                    <th>公司名称</th>
+                    <th>公司代号</th>
+                    <th>查看信息</th>
+                    <th>修改信息</th>
+                    <th>子公司列表</th>
+                    <th>删除</th>
+                </tr>
+                {% for i in organs %}
+                    <tr style="background-color: {{ forloop.counter| remainder }}">
+
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.organizeid }}</td>
+                        <td><a href="/getMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">查看信息</a></td>
+                        <td><a href="/setMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">修改信息</a></td>
+                        <td><a href="/OrganNextIndex/?id={{ i.id }}&rank={{ i.message.rank }}">子公司列表</a></td>
+                        <td><a href="/RemoveOrgan/?id={{ i.id }}&rank={{ i.message.rank }}">删除</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

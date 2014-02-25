@@ -1,0 +1,90 @@
+
+
+      {
+           "taiping":
+                 {
+                    "message":
+                    {
+                     "name":"太平养鸡场",
+                     "first":"温氏集团",
+                     "second":"稔村公司",
+                     "third":"太平公司",
+                     "ID":"WSRCTPTPZJC"
+                    },
+
+
+
+                   "public":
+                   {
+                     "operator":"电信",
+                     "circuit":"数字链路",
+                     "downlinkBandwidth":"10M" ,
+                     "uplinkBandwidth":"10M" ,
+                     "PublicIP":"10.0.63.22/24",
+                     "PublicGATEWAY":"无",
+                      "DNS":"无"
+                   },
+
+                   "intranet":
+                   {
+                     "IAD":"无",
+                     "networkSupervisor":"ER3100",
+                     "intranetDiagram":{
+                             "diagram-1":"10.63.22.0/25",
+                             "diagram-2":"10.63.22.128/25"
+                                             },
+                     "intranetGATEWAY":{
+                              "GATEWAY-1":"10.63.22.1",
+                              "GATEWAY-2":"10.63.22.254"
+                                            },
+                     "deviceDiagram":"无",
+                     "deviceManagement":"web:https://10.0.63.22:800",
+                     "LookbackIP":"无",
+                      "deviceService":{
+                               "service-1":"snmp",
+                               "service-2":"https",
+                               "service-3":"telnet"
+                                          }
+
+                     },
+                     "VPN":
+                     {
+                      "peerID":"无",
+                      "Tunnel0":"无",
+                      "Tunnel1":"无",
+                      "grekey":"无",
+                      "ike_preshare_key":"无",
+                      "terminalIkePeer":"无",
+                      "centerTunnel":"无",
+                      "centerTemplate":"无",
+                      "centerNQA":"无",
+                      "username":"admin",
+                      "currentPassword":"W0123456ABC",
+                      "historicalPassword":"W0654321ABC",
+                      "currentSSH":"",
+                      "historicalSSH":""
+                     },
+                     "other":
+                     {
+                         "nat":"",
+                         "note":
+                             {
+                                "note1":"1、数字链路直连总部新大楼机房",
+                                 "note2":"3、10.63.22.1/25为生产段，禁止出公网;10.63.22.128/25为办公段，可以出公网，限制下载，限策略在ER3100;",
+                                 "note3":"2、10.63.22.11-15为硬盘录像机固定IP；",
+                                 "note4":"4、10.63.22-20-100为栏舍控制器保留IP；"
+
+                             },
+                         "config":""
+                     }
+
+
+                 }
+
+
+
+      }
+
+
+
+
