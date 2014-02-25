@@ -6,19 +6,50 @@
     {% block js %}
     <script type="text/javascript">
         function ShowOrganList(){
-            $("#OrganList").css("display","block");
-            $("#OrganList").load("/getOrganList/")
+            /*
+             *异步返回机构列表
+             */
+            var box =300;
+
+            var th= $(window).scrollTop()+$(window).height()/1.4-box;
+
+            var h =document.body.clientHeight;
+
+            var rw =$(window).width()/2-box;
+
+            $("#OrganList").animate({top:th,opacity:'show',width:600,height:340,left:rw},500);//弹窗效果
+
+            $.post("/getOrganList/",function(data){
+                $("#OrganList").html(data)
+            })
         }
         function ShowNextOrgan(rank,id){
+            /*
+             异步返回子机构列表
+             */
             $("#OrganList").load("/getNextOrgan/",{"rank":rank,"id":id})
         }
         function ChooseParent(name,id,rank){
-                $("#parent").val(name)
-                $("#parentID").val(id)
-                $("#parentRank").val(rank)
-                $("#OrganList").css("display","none")
+                /*
+                 缓存母机构信息
+                 */
+                var nowrank=$("select[name='rank']").val() //获取当前选择机构层级
+                if(rank<nowrank-1||rank>nowrank){
+                    alert("母机构层级错误");
+                    return
+                    //判断当前机构与所选母机构层级逻辑关系，错误则返回
+                }
+                $("#parent").val(name);
+                $("#parentID").val(id);
+                $("#parentRank").val(rank);
+                $("#OrganList").css("display","none");
         }
         function ChangeSelect(me,id){
+            /**
+             *正则匹配“光纤”
+             * 公网IP与公网网关是否可填
+             */
+
             var text=$(me).find("option:selected").text()
             $("#"+id).val(text)
             if(id=='circuit'){
@@ -31,6 +62,28 @@
                     $("input[name='PublicIP']").removeAttr("disabled");
                     $("input[name='PublicGATEWAY']").removeAttr("disabled");
                 }
+            }
+        }
+        function JudgeRank(me){
+            /*
+            判断机构层级
+             */
+            if($(me).val()=="2"){
+                //如果所选为2级机构，则禁用母公司选择元素
+                $("#parent").attr("disabled","true")
+                $("#parent").val("温氏集团")
+            }
+            else{
+                $("#parent").removeAttr("disabled")
+                $("#parent").val("")
+            }
+        }
+        function IP2V(ip)
+        {
+            var re = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;   //匹配IP地址的正则表达式
+            var re2=/^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\\|\/(\d{1,2})$/;
+            if(!re2.test(ip)&&!re.test(ip)){
+                alert("IP段格式错误，请按照'X.X.X.X'或'X.X.X.X/XX'格式输入");
             }
         }
     </script>
@@ -49,7 +102,7 @@
         <b>机构信息</b>
         <span>温氏集团</span>
         <span>机构层级：</span>
-        <select name="rank">
+        <select name="rank" onchange="JudgeRank(this)">
             <option>请选择</option>
             <option value="2">二级机构</option>
             <option value="2.5">二级半机构</option>
@@ -105,8 +158,8 @@
                 <td><input type="text"  name="circuit" id="circuit"/></td>
                 <td><input type="text"  name="downlinkBandwidth"/></td>
                 <td><input type="text"  name="uplinkBandwidth"/></td>
-                <td><input type="text"  name="PublicIP"/></td>
-                <td><input type="text"  name="PublicGATEWAY"/></td>
+                <td><input type="text"  name="PublicIP" onchange="IP2V($(this).val())"/></td>
+                <td><input type="text"  name="PublicGATEWAY" /></td>
                 <td><input type="text"  name="DNS"/></td>
             </tr>
         </table>
@@ -131,8 +184,8 @@
                     </select>
                 </td>
 
-                <td>内网段<input type="button" value='add' class='addnote' onclick="addtext('Diagram','20px')"/></td>
-                <td>内网网关<input type="button" value='add' class='addnote' onclick="addtext('GATEWAY','20px')"/></td>
+                <td>内网段</td>
+                <td>内网网关</td>
                 <td>上网管理设备</td>
                 <td>设备互联网段</td>
                 <td>设备互联网段IP</td>
@@ -251,9 +304,10 @@
 
     <input type="submit" value="click" class='post submit' />
 </form>
-<div id="OrganList" style="background-color:white;height: 250px;width: 400px;position: fixed;left: 200px;top: 200px;display: none">
-
-
+<div id="OrganList" style="border:1px silver solid;background-color:white;
+                                height: 320px;width: 600px;position: fixed;left: 300px;top: 200px;display: none;
+                                -moz-box-shadow: 5px 5px 5px #888888; /* 老的 Firefox */
+                                box-shadow: 5px 5px 5px #888888;">
 </div>
 {% endblock %}
 

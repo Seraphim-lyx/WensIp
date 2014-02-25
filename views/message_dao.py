@@ -231,7 +231,8 @@ def CreateNewMessage(request):
     return HttpResponseRedirect("/OrganIndex/")
 
 
-
+def newMessage(request):
+    return render_to_response("message/newMessage.html",locals())
 @csrf_exempt
 def UpdateMessage(request):
     """

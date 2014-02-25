@@ -4,19 +4,25 @@
     <title></title>
     <script type="text/javascript">
     </script>
+    <style type="text/css">
+       .Organs th,.Organs td{
+            width: 150px;
+           text-align: center;
+        }
+    </style>
 </head>
 <body>
 <div>
     <a href="#" style="float: right;font-size: 20px;color: red;"onclick="javascript:OrganList.style.display='none' "><img src="/static/pic/close.jpg"/></a>
 </div>
 <div style="clear: both;">
-<table>
+<table class="Organs">
     <tr>
-        <td>机构名称</td>
-        <td>机构代号</td>
-        <td>机构层级</td>
-        <td>下级机构列表</td>
-        <td>选定机构</td>
+        <th>机构名称</th>
+        <th>机构代号</th>
+        <th>机构层级</th>
+        <th>下级机构列表</th>
+        <th>选定机构</th>
     </tr>
     {% for i in organs %}
     <tr>
