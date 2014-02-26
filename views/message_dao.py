@@ -5,7 +5,7 @@ import string
 import random
 import sys
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,Http404
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 import xlrd
@@ -194,9 +194,9 @@ def SaveOrUpdateMessage(request,method):
     mes.Tunnel0=Tunnel0
     mes.Tunnel1=Tunnel1
     mes.grekey=grekey
-
+###
     mes.ike_preshare_key=ike_preshare_key
-
+###
     mes.terminalIkePeer=terminalIkePeer
     mes.centerTunnel=centerTunnel
     mes.centerTemplate=centerTemplate
@@ -404,19 +404,15 @@ def createVPN(cursor):
     message["<7>"] = cursor.DNS
     message["<8>"] = cursor.DNS
     message["<9>"] = cursor.DNS
-    message["<a>"] = cursor.Tunnel0
-    message["<b>"] = cursor.Tunnel1
-    message["<c>"] = cursor.grekey
+    message["<10>"] = cursor.Tunnel0
+    message["<11>"] = cursor.Tunnel1
+    message["<12>"] = cursor.grekey
 
     ff = codecs.open(r'f:\project\vrpcfg1.cfg',"r","gbk")
     output = open(cursor.name.decode("utf8")+".cfg","w")
-    p1 = re.compile("<\d>")
-    p2 = re.compile("<[abc]>")
+    p = re.compile("<\d{1,2}>")
     for line in ff:
-        for m in p1.finditer(line):
-            sub = m.group()
-            line = line.replace(sub,message[sub])
-        for m in p2.finditer(line):
+        for m in p.finditer(line):
             sub = m.group()
             line = line.replace(sub,message[sub])
         output.write(line)
@@ -424,16 +420,30 @@ def createVPN(cursor):
     output.close();
     return None
 
+from django.core.servers.basehttp import FileWrapper
 
+
+def ReadFile(request,filename):
+    """
+    下载文件
+    """
+         # Select your file here.
+    try:
+        print filename
+        wrapper = FileWrapper(file(filename))
+        response = HttpResponse(wrapper, mimetype='application/octet-stream')
+        response['Content-Length'] = os.path.getsize(filename)
+        response['Content-Disposition'] = 'attachment; filename = %s' % filename.encode("utf8")
+        return response
+    except:
+        raise Http404
 def getVPN(request):
-    rank=request.GET.get("rank")
-    rankid=request.GET.get("rankid")
     id=request.GET.get("id")
     cursor=Message.objects.get(id=id)
     createVPN(cursor)
-    strr = "VPN文件已生成"
-    path = "/getMessage/?id="+id+"&rank="+rank+"&rankid="+rankid
-    return render_to_response("hint.html",locals())
+    filename =  cursor.name.decode("utf8")+".cfg"
+    return ReadFile(request,filename)
+#    return render_to_response("hint.html",locals())
 
 
 
@@ -444,13 +454,9 @@ def convert(ch):
     该函数通过输入汉字返回其拼音，如果输入多个汉字，则返回第一个汉字拼音.
        如果输入数字字符串，或者输入英文字母，则返回其本身(英文字母如果为大写，转化为小写)
     """
-    length = len('拼') #测试汉字占用字节数，utf-8，汉字占用3字节.bg2312，汉字占用2字节
-    intord = ord(ch[0:1])
-    #字母或者数字直接返回
-    if (intord >= 48 and intord <= 57):
-        return ch[0:1]
-    if (intord >= 65 and intord <=90 ) or (intord >= 97 and intord <=122):
-        return ch[0:1].lower()
+    if str(type(ch)).__name__!="unicode":
+        ch = unicode(ch,"utf8")
+    length = len(u'拼') #测试汉字占用字节数，utf-8，汉字占用3字节.bg2312，汉字占用2字节
     hanzis=[]
     ch_length = len(ch)
     i = 0
@@ -458,21 +464,23 @@ def convert(ch):
         '''
         生成汉字的编码
         '''
-        hanzis.append(ch[i:i+length])
+        intord = ch[i:i+length]
+        print intord
+        hanzis.append(intord)
         i += length
         if i+length > ch_length:
             break
         pass
     pinyin=[]
     #查询字库获取拼音
+    f = codecs.open("convert-utf-8.txt","r","utf8")
     for hanzi in hanzis:
-        with open(r'../convert-utf-8.txt') as f:
-            for line in f:
-                if hanzi in line:
-                    pinyin.append( line[length:len(line)-2])
-                    pass
-                pass
-            pass
+        for line in f:
+            intord = ord(hanzi)
+            if hanzi in line:
+                pinyin.append( line[length:len(line)-2])
+                break
+    f.close()
     return pinyin
 
 #####------------加密开始
@@ -499,6 +507,7 @@ def create_x(gong_si_name):
     #根据中文字节数划分字符串
     while True:
         chs = gong_si_name[i:i+length]
+        print chs
         #将字符串经过编码后，转为标准的python字符串
         chs = repr(chs.encode("utf8").decode("utf8"))
         #去掉unicode字符串中的"\u"
@@ -541,15 +550,30 @@ def create_z(ike_local_name):
     3.将sum的值与135相乘求得参数z的最终值
     '''
     #去掉字符串中的“-”
-    ike_local_name = ike_local_name.replace("-","")
-    sum = 0
-    for ch in ike_local_name:
-        sum += ord(ch)
-        pass
-    z_value = sum*135790
-    while len(str(abs(z_value))) < 6:
-        z_value += (z_value*135790)
-    return z_value
+    if ike_local_name:
+
+        ike_local_name = ike_local_name.replace("-","")
+
+        sum = 0
+
+        str_len = len(ike_local_name)
+        i = 0
+        while True:
+            int_ord = 0
+            try:
+                int_ord = ord(ike_local_name[i])
+                sum += int_ord
+            except:
+                pass
+            i+=1
+            if i >= str_len:
+                break
+        z_value = sum*135790
+        while len(str(abs(z_value))) < 6:
+            z_value += (z_value*135790)
+        return z_value
+    else:
+        return 0
 
 #生成加密的密码，并返回
 def meger(x,y,z):
@@ -587,6 +611,7 @@ def jia_mi(request):
 
     x = create_x(request.POST.get("department"))
     y = create_y(request.POST.get("GATEWAY"))
+
     z = create_z(request.POST.get("peerID"))
 
     ike_preshare_key= meger(x,y,z)

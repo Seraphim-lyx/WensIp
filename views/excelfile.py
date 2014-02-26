@@ -4,6 +4,7 @@ import xlwt
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
+from mis import models
 def excel_init(select_index):
     '''
     重相应的excel文件中获取excel文件的表头信息
@@ -133,28 +134,57 @@ def excel_request(request):
     '''
     处理来自网页的excel需求
     '''
-    filetype = 1
     try:
-        filetype = int(request.POST.get("filetype"))
+        filetype = int(request.GET.get("filetype"))
     except TypeError:
-        filetype = 1
+        return HttpResponse("Excel Error")
         pass
     excelCaption=excel_init(filetype)
-    messages = junniper_messages(request)
+    messages = None
+    if filetype is None:
+        return HttpResponse("No Message can Write")
+    elif filetype == 0:
+        messages = junniper_messages(request)
+        geshi = "_Junniper.xls"
+    elif filetype == 1:
+        messages = h3c_messages(request)
+        geshi = "_H3C.xls"
+
     filename = ""
+    id = request.GET.get("id")
     try:
-        filename = str(request.POST.get("name"))+".xls"
-    except TypeError:
-        filename = "excel.xls"
+        filename = models.Message.objects.get(id=id).name.decode("utf8")+".xls"
+
+    except :
+        filename = u"未知.xls"
         pass
     write_excel(excelCaption,messages,filename)
-    strr = "Excel文件已生成"
-    id = request.GET.get("id")
-    rank = request.GET.get("rank")
-    rankid = request.GET.get("rankid")
-    path = "/getMessage/?id="+id+"&rank="+rank+"&rankid="+rankid
-    return render_to_response("hint.html",locals())
-#    return render_to_response("message/getMessage.html",locals())
+
+    return ReadFile(request,filename,geshi)
+
+from django.core.servers.basehttp import FileWrapper
+import os
+
+def ReadFile(request,filename,geshi):
+    """
+    下载文件
+    """
+         # Select your file here.
+    import StringIO
+    f = open(filename,"rb")
+    output = StringIO.StringIO()
+    output.write(f.read())
+    f.close()
+    wrapper = FileWrapper(file(filename))
+    response = HttpResponse(content=output.getvalue(),mimetype='application/vnd.ms-excel')
+
+    response['Content-Length'] = os.path.getsize(filename)
+    response['Content-Disposition'] = 'attachment; filename = %s' % filename.encode("utf8").replace(".xls",geshi)
+    return response
+
+
+
+
 
 def test(request):
     return render_to_response("test3.html")
