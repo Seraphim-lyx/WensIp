@@ -5,7 +5,10 @@ import json
 import string
 import random
 import sys
+import time
+import uuid
 
+from datetime import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
@@ -31,21 +34,18 @@ def setDefaultUser(request):
     obj.save(json)
     return  HttpResponse("ok")
 
-@csrf_exempt
 def test(request):
-    obj=ThiRank.objects.create()
-    pre=SecHalfRank.objects.get(id=1)
-    obj.parent_rank_half=pre
-    obj.save()
+    d=uuid.uuid4()
     return render_to_response("test.html",locals())
 
 def submit(request):
-    a=atest.objects.f
+
     return render_to_response("tree/submit.html")
 
 @csrf_exempt
 def test2(request):
-    return render_to_response('newtest.html',locals())
+    SaveFile(request.FILES['file'],"a","static")
+    return HttpResponse()
 
 @csrf_exempt
 def ReadFile(request):
@@ -60,12 +60,15 @@ def ReadFile(request):
     response['Content-Disposition'] = 'attachment; filename='+name
     return response
 
-def SaveFile(file,filename,dir):
+def SaveFile(file):
     """
     上传文件
     """
+    dir="static"
+    filename=uuid.uuid4().__str__()
     name=file.name
     str=name.split(".")[1]
+
     with open(dir+'/'+filename+'.'+str,'wb+') as path:
         for chunk in file.chunks():
             path.write(chunk)

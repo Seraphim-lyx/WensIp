@@ -78,13 +78,22 @@
                 $("#parent").val("")
             }
         }
-        function IP2V(ip)
-        {
+        function IP2V(ip){
             var re = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;   //匹配IP地址的正则表达式
             var re2=/^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\\|\/(\d{1,2})$/;
             if(!re2.test(ip)&&!re.test(ip)){
                 alert("IP段格式错误，请按照'X.X.X.X'或'X.X.X.X/XX'格式输入");
             }
+        }
+        function SetGrekey(ip){
+            var  iparray=ip.split(".")
+            for(var i=0;i<iparray.length;i++){
+                if(iparray[i]<10){
+                    iparray[i]="0"+iparray[i]
+                }
+            }
+            $("#grekey").val(iparray[0]+iparray[1]+iparray[2])
+
         }
     </script>
     {% endblock %}
@@ -128,27 +137,38 @@
             <tr>
                 <td>
                     所属运营商
-                    <select id="SelectOperator" onchange="ChangeSelect(this,'operator')" class="dropkick" tabindex="1">
+                    <select id="SelectOperator" onchange="ChangeSelect(this,'operator')" class="select">
                         <option>请选择</option>
-                        <option>电信</option>
-                        <option>联通</option>
-                        <option>移动</option>
-                        <option>局域网</option>
+                        {% for j in option1 %}
+                            <option>{{ j.name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
                 <td>
                     线路类型
                     <select onchange="ChangeSelect(this,'circuit')" class="select">
                         <option>请选择</option>
-                        <option>数字链路</option>
-                        <option>光纤专线</option>
-                        <option>拨号光纤</option>
-                        <option>ADSL</option>
-                        <option>其他</option>
+                        {% for j in option2 %}
+                            <option>{{ j.name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
-                <td>下行带宽</td>
-                <td>上行带宽</td>
+                <td>下行带宽
+                    <select onchange="ChangeSelect(this,'downlinkBandwidth')" class="select">
+                        <option>请选择</option>
+                        {% for j in option4 %}
+                            <option>{{ j.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>上行带宽
+                    <select onchange="ChangeSelect(this,'uplinkBandwidth')" class="select">
+                        <option>请选择</option>
+                        {% for j in option5 %}
+                            <option>{{ j.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
                 <td>公网IP/WAN口IP</td>
                 <td>公网网关/WAN口网关</td>
                 <td>所在地DNS</td>
@@ -156,10 +176,10 @@
             <tr>
                 <td><input type="text"  name='operator' id="operator"/></td>
                 <td><input type="text"  name="circuit" id="circuit"/></td>
-                <td><input type="text"  name="downlinkBandwidth"/></td>
-                <td><input type="text"  name="uplinkBandwidth"/></td>
+                <td><input type="text"  name="downlinkBandwidth" id="downlinkBandwidth"/></td>
+                <td><input type="text"  name="uplinkBandwidth" id="uplinkBandwidth"/></td>
                 <td><input type="text"  name="PublicIP" onchange="IP2V($(this).val())"/></td>
-                <td><input type="text"  name="PublicGATEWAY" /></td>
+                <td><input type="text"  name="PublicGATEWAY" onchange="IP2V($(this).val())"/></td>
                 <td><input type="text"  name="DNS"/></td>
             </tr>
         </table>
@@ -170,17 +190,12 @@
         <table border="1">
             <tr>
                 <td>
-                    设备型号
+                    设备厂商
                     <select onchange="ChangeSelect(this,'IAD')">
                         <option>请选择</option>
-                        <option>AR2809</option>
-                        <option>AR2811</option>
-                        <option>AR2831</option>
-                        <option>MSR3010</option>
-                        <option>ER3100</option>
-                        <option>5GT</option>
-                        <option>318</option>
-                        <option>其他</option>
+                        {% for j in option3 %}
+                            <option>{{ j.name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
 
@@ -197,13 +212,13 @@
 
                 <td class='Diagram'>
 
-                        <input type="text"  name="Diagram"/>
+                        <input type="text"  name="Diagram" onchange="IP2V($(this).val()),SetGrekey($(this).val())"/>
 
                 </td>
 
                 <td class='GATEWAY'>
 
-                        <input type="text" name="GATEWAY"/>
+                        <input type="text" name="GATEWAY" onchange="IP2V($(this).val())"/>
 
 
                 </td>
@@ -242,7 +257,7 @@
                 <td>IKE local-name/<br/>peerID/<br/>local identify data<br/><input type="button" value="自动生成" onclick="setkey('peerID')" class='make'/> </td>
                 <td>Tunnel0</td>
                 <td>Tunnel1</td>
-                <td>gre key<br/><input type="button" value="自动生成" onclick="makegrekey()" class='make'/></td>
+                <td>gre key(默认根据内网段生成)</td>
                 <td>ike-<br/>preshare-key</td>
                 <td>中心端 "ike peer"/<br/>终端 "policy name" <br/><input type="button" value="自动生成" onclick="setkey('IkePeer')" class='make'/></td>
                 <td>中心端<br/>tunnel号</td>
@@ -294,7 +309,7 @@
                         <input type="text" name="note" size="120px"/>
 
                 </td>
-                <td><input type="file"  name="config"/> </td>
+                <td><input type="file"  name="config" disabled="true"/> </td>
             </tr>
         </table>
     </div>

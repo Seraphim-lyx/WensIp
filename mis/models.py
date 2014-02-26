@@ -82,6 +82,7 @@ class SecRank(models.Model):
     organizeid=models.CharField(max_length=20)
     name=models.CharField(max_length=20)
     message=models.OneToOneField(Message,null=True)
+    iprange=models.CharField(max_length=50)
 
 #二级半机构
 class SecHalfRank(models.Model):
@@ -140,3 +141,11 @@ class User(models.Model):
 class ExtraField(models.Model):
     id=models.AutoField(primary_key=True)
     name=models.CharField(max_length=50)
+
+class File(models.Model):
+    id=models.AutoField(primary_key=True)
+    name=models.CharField(max_length=50)
+    uuid=models.CharField(max_length=50)
+    content=models.CharField(max_length=250)
+    date=models.DateField(null=True)
+    file=models.ForeignKey(Message,null=True)

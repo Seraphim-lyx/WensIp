@@ -21,7 +21,7 @@ def upload_file(request):
 @csrf_exempt
 def handle_uploaded_file(f):
     name=f.name
-    destination = open('f://ch8/'+name, 'wb+')
+    destination = open('/file/'+name, 'wb+')
     for chunk in f.chunks():
         destination.write(chunk)
     destination.close()

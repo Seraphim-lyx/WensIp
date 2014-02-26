@@ -54,8 +54,23 @@
                                 {% endfor %}
                             </select>
                         </td>
-                        <td>下行带宽</td>
-                        <td>上行带宽</td>
+                        <td>下行带宽
+                            <select onchange="ChangeSelect(this,'downlinkBandwidth')" class="select">
+                                <option>请选择</option>
+                                {% for j in option4 %}
+                                    <option>{{ j.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                        </td>
+                        <td>上行带宽
+                            <select onchange="ChangeSelect(this,'uplinkBandwidth')" class="select">
+                                <option>请选择</option>
+                                {% for j in option5 %}
+                                    <option>{{ j.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
                         <td>公网IP/WAN口IP</td>
                         <td>公网网关/WAN口网关</td>
                         <td>所在地DNS</td>
@@ -65,8 +80,8 @@
                         <td>
                             <input type="text" value="{{ cursor.circuit }}" name="circuit" id="circuit"/>
                         </td>
-                        <td><input type="text" value="{{ cursor.downlinkBandwidth }}" name="downlinkBandwidth"/></td>
-                        <td><input type="text" value="{{ cursor.uplinkBandwidth }}" name="uplinkBandwidth"/></td>
+                        <td><input type="text" value="{{ cursor.downlinkBandwidth }}" name="downlinkBandwidth" id="downlinkBandwidth"/></td>
+                        <td><input type="text" value="{{ cursor.uplinkBandwidth }}" name="uplinkBandwidth" id="uplinkBandwidth"/></td>
                         <td><input type="text" value="{{ cursor.PublicIP }}" name="PublicIP"/></td>
                         <td><input type="text" value="{{ cursor.PublicGATEWAY }}" name="PublicGATEWAY"/></td>
                         <td><input type="text" value="{{ cursor.DNS }}" name="DNS"/></td>
@@ -208,16 +223,13 @@
                     <tr>
                         <td><input type="text" value="{{ cursor.nat }}" name="nat"/> </td>
                         <td class='note'>
-                            {% for values in cursor.note %}
-                                <input type="text" value="{{ values }}" name="note" size="120px"/>
-
-                            {% endfor %}
+                            <input type="text" value="{{ cursor.note }}" name="note" size="120px"/>
                         </td>
                         <td>{% for f in files %}
                                 {{ f }}<input type="button" onclick="DelFile('{{ f }}','{{ cursor.ID }}')" value='删除' /> <br/>
                             {% endfor %}
                         </td>
-                        <td><input type="text" name="filename"/><br/> <input type="file"  name="config"/> </td>
+                        <td><input type="text" name="filename"/><br/> <input type="file"  name="file"/> </td>
                     </tr>
                 </table>
             </div>

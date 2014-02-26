@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import xlrd
 import pymongo
 
-from project import settings
+from views.file_dao import *
 from mis.models import *
 
 
@@ -65,16 +65,7 @@ def connection():
     db=connection.test
     return db
 
-def SaveFile(file,filename,dir):
-    """
-    上传文件
-    """
-    name=file.name
-    str=name.split(".")[1]
-    with open(dir+'/'+filename+'.'+str,'wb+') as path:
-        for chunk in file.chunks():
-            path.write(chunk)
-    return None
+
 
 
 
@@ -180,7 +171,7 @@ def SaveOrUpdateMessage(request,method):
     else:
         id=request.POST.get("id")
         mes=Message.objects.get(id=id)
-
+        SaveFile(request,mes)
     mes.name=name
     mes.organizeid=organid
     mes.operator=operator
@@ -232,7 +223,13 @@ def CreateNewMessage(request):
 
 
 def newMessage(request):
+    option1=Abstraction.objects.filter(type=1)
+    option2=Abstraction.objects.filter(type=2)
+    option3=Abstraction.objects.filter(type=3)
+    option4=Abstraction.objects.filter(type=4)
+    option5=Abstraction.objects.filter(type=5)
     return render_to_response("message/newMessage.html",locals())
+
 @csrf_exempt
 def UpdateMessage(request):
     """
@@ -291,6 +288,8 @@ def setMessage(request):
     option1=Abstraction.objects.filter(type=1)
     option2=Abstraction.objects.filter(type=2)
     option3=Abstraction.objects.filter(type=3)
+    option4=Abstraction.objects.filter(type=4)
+    option5=Abstraction.objects.filter(type=5)
     cursor.intranetDiagram=jd.decode(cursor.intranetDiagram)
     cursor.intranetGATEWAY=jd.decode(cursor.intranetGATEWAY)
     cursor.deviceService=jd.decode(cursor.deviceService)
