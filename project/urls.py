@@ -48,6 +48,7 @@ urlpatterns = patterns('',
 
 
         #####
-    (r'^vpn/$',message_dao.getVPN),
+        (r'^vpn/$',message_dao.getVPN),
+        (r'^autoIP/$',message_dao.tunnel_ip),
         #####
                        )

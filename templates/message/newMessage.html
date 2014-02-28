@@ -23,13 +23,33 @@
                 $("#OrganList").html(data)
             })
         }
+
+         function showIP()
+        {
+
+            var url = $("#range").val();
+            $.post("/autoIP/?url="+url,function(data){
+                var str = data.split("|")
+                $("#tunnel0").val(str[0]);
+                $("#tunnel1").val(str[1]);
+
+            })
+
+        }
+        function ChooseIP(ip1,ip2)
+        {
+            $("#tunnel0").val(ip1)
+            $("#tunnel1").val(ip2)
+        }
+
+
         function ShowNextOrgan(rank,id){
             /*
              异步返回子机构列表
              */
             $("#OrganList").load("/getNextOrgan/",{"rank":rank,"id":id})
         }
-        function ChooseParent(name,id,rank){
+        function ChooseParent(name,id,rank,bip,eip){
                 /*
                  缓存母机构信息
                  */
@@ -43,7 +63,26 @@
                 $("#parentID").val(id);
                 $("#parentRank").val(rank);
                 $("#OrganList").css("display","none");
+                $("#beginIP").val(bip);
+                $("#endIP").val(eip);
+
+                var arr1 = bip.split(".");
+                var arr2 = eip.split(".");
+
+                var t1 = parseInt(arr1[2]);
+                var t2 = parseInt(arr2[2]);
+
+                for (;t1<=t2;t1++)
+                {
+                    arr1[2]=t1+""
+                    var str = arr1.join(".")
+                    document.getElementById("range").options.add(new Option(str,str));
+                }
         }
+
+
+
+
         function ChangeSelect(me,id){
             /**
              *正则匹配“光纤”
@@ -72,10 +111,14 @@
                 //如果所选为2级机构，则禁用母公司选择元素
                 $("#parent").attr("disabled","true")
                 $("#parent").val("温氏集团")
+
             }
             else{
                 $("#parent").removeAttr("disabled")
                 $("#parent").val("")
+                $("#beginIP").val("")
+                $("#endIP").val("")
+
             }
         }
         function IP2V(ip){
@@ -255,8 +298,33 @@
         <table border="1">
             <tr>
                 <td>IKE local-name/<br/>peerID/<br/>local identify data<br/><input type="button" value="自动生成" onclick="setkey('peerID')" class='make'/> </td>
-                <td>Tunnel0</td>
-                <td>Tunnel1</td>
+
+                <!--
+                 -----------------------------------
+                 -->
+               <td colspan="2">
+                    <table frame = "void" border="1" width="320">
+                        <tr>
+                            <td align="center" colspan="2">
+                                TunnelIP所属网段<br/>
+                                <select  class = "select" name="range" id="range" onchange="showIP()">
+                                    <option>请选择所属网段</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Tunnel0</td>
+                            <td>Tunnel1</td>
+                        </tr>
+                    </table>
+               </td>
+
+
+                <!--
+                 -----------------------------------
+                 -->
+
+
                 <td>gre key(默认根据内网段生成)</td>
                 <td>ike-<br/>preshare-key</td>
                 <td>中心端 "ike peer"/<br/>终端 "policy name" <br/><input type="button" value="自动生成" onclick="setkey('IkePeer')" class='make'/></td>
@@ -265,8 +333,22 @@
 
             <tr>
                 <td><input type="text"  name="peerID" id="peerID"/> </td>
-                <td><input type="text"  name="Tunnel0"/> </td>
-                <td><input type="text"  name="Tunnel1"/> </td>
+
+
+                <!--
+                -----------------------------------------------------------------
+                -->
+
+                <td>
+                       <input type="text"  name="Tunnel0" id = "tunnel0" value = '{{ tunnel0 }}'/>
+                </td>
+                <td>
+                       <input type="text"  name="Tunnel1" id = "tunnel1" value = '{{ tunnel1 }}'/>
+                </td>
+
+                <!--
+                -----------------------------------------------------------------
+                -->
                 <td><input type="text"  name="grekey" id="grekey"/> </td>
                 <td><input type="text" value="系统生成" disabled/> </td>
                 <td><input type="text"  name="terminalIkePeer" id="IkePeer"/> </td>
@@ -290,6 +372,17 @@
                 <td class='historicalPassword'><input type="text"  name="historicalPassword"/> </td>
                 <td><input type="text"  name="currentSSH"/> </td>
                 <td class='historicalSSH'><input type="text"  name="historicalSSH"/> </td>
+            </tr>
+
+            <!--
+            -------------------------------------分割--------------------------------------------------
+            -->
+            <tr>
+                <td align="center" colspan="2">TunnelIP网段</td>
+            </tr>
+            <tr>
+                <td><input type="text" value = "" name="beginIP" id= "beginIP"  /></td>
+                <td><input type="text" value = "" name="endIP"   id="endIP" /></td>
             </tr>
         </table>
     </div>
@@ -324,6 +417,7 @@
                                 -moz-box-shadow: 5px 5px 5px #888888; /* 老的 Firefox */
                                 box-shadow: 5px 5px 5px #888888;">
 </div>
+
 {% endblock %}
 
 

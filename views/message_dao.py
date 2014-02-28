@@ -74,6 +74,7 @@ def connection():
 def GetOrganList(request):
     rank=request.POST.get("rank")
     rank="2"
+
     organs=GetRank(rank).all()
     return render_to_response("message/OrganList.html",locals())
 
@@ -82,7 +83,7 @@ def GetOrganList(request):
 def GetNextOrgans(request):
     id=request.POST.get("id")
     rank=request.POST.get("rank")
-    print id,rank
+    print "begin",id,rank
     organs=GetNextRank(id,rank)
     return render_to_response("message/OrganList.html",locals())
 
@@ -133,6 +134,7 @@ def SaveOrUpdateMessage(request,method):
     Tunnel1=request.POST.get("Tunnel1")
     grekey=request.POST.get("grekey")
 
+
     ike_preshare_key = jia_mi(request)
 
     terminalIkePeer=request.POST.get("terminalIkePeer")
@@ -149,9 +151,13 @@ def SaveOrUpdateMessage(request,method):
     parentID=request.POST.get("parentID")
     parentrRank=request.POST.get("parentRank")
 
+    #
+    beginIP = request.POST.get("beginIP")
+    endIP = request.POST.get("endIP")
+    #
+    print "OK：",beginIP,endIP
     if method is "save":
         rank=request.POST.get("rank")
-
 
         mes=Message.objects.create()
         mes.rank=rank
@@ -164,6 +170,7 @@ def SaveOrUpdateMessage(request,method):
         if rank != "2" and rank !="3":
             preobj=GetRank(parentrRank).get(id=parentID)
             obj.parent_rank=preobj
+
         obj.organizeid=organid
         obj.name=name
         obj.message=mes
@@ -193,8 +200,12 @@ def SaveOrUpdateMessage(request,method):
     mes.peerID=peerID
     mes.Tunnel0=Tunnel0
     mes.Tunnel1=Tunnel1
+
+
     mes.grekey=grekey
 ###
+    mes.beginIP = beginIP
+    mes.endIP = endIP
     mes.ike_preshare_key=ike_preshare_key
 ###
     mes.terminalIkePeer=terminalIkePeer
@@ -429,7 +440,7 @@ def ReadFile(request,filename):
     """
          # Select your file here.
     try:
-        print filename
+
         wrapper = FileWrapper(file(filename))
         response = HttpResponse(wrapper, mimetype='application/octet-stream')
         response['Content-Length'] = os.path.getsize(filename)
@@ -438,11 +449,15 @@ def ReadFile(request,filename):
     except:
         raise Http404
 def getVPN(request):
-    id=request.GET.get("id")
-    cursor=Message.objects.get(id=id)
-    createVPN(cursor)
-    filename =  cursor.name.decode("utf8")+".cfg"
-    return ReadFile(request,filename)
+    id=request.GET.get("id","")
+    if id:
+
+        cursor=Message.objects.get(id=id)
+        createVPN(cursor)
+        filename =  cursor.name.decode("utf8")+".cfg"
+        return ReadFile(request,filename)
+    else:
+        raise Http404
 #    return render_to_response("hint.html",locals())
 
 
@@ -465,7 +480,6 @@ def convert(ch):
         生成汉字的编码
         '''
         intord = ch[i:i+length]
-        print intord
         hanzis.append(intord)
         i += length
         if i+length > ch_length:
@@ -503,11 +517,9 @@ def create_x(gong_si_name):
     ch_length = len(gong_si_name)
     i = 0
     sum = 0
-    print gong_si_name[0:1]
     #根据中文字节数划分字符串
     while True:
         chs = gong_si_name[i:i+length]
-        print chs
         #将字符串经过编码后，转为标准的python字符串
         chs = repr(chs.encode("utf8").decode("utf8"))
         #去掉unicode字符串中的"\u"
@@ -617,3 +629,30 @@ def jia_mi(request):
     ike_preshare_key= meger(x,y,z)
     return ike_preshare_key
 #--------------------------------------------------------------------------
+
+####------------------------
+##tunnelIP部分
+@csrf_exempt
+def tunnel_ip(request):
+
+    ip = request.GET.get("url","")
+    print ip
+    iphead = ".".join(ip.split(".")[:3])+"."
+    ip_message = Message.objects.filter(Tunnel0__contains=iphead,Tunnel1__contains=iphead).order_by("Tunnel0")
+    available_ip=[]
+    usable = True
+    step = 1
+    while step < 255:
+        ip = iphead+str(step)
+        for mes in ip_message:
+            if ip in mes.Tunnel0 or ip in mes.Tunnel1:
+                usable = False
+                break
+        if usable:
+            available_ip.append(ip)
+        usable = True
+        step += 4
+    print available_ip
+    return HttpResponse(available_ip[0]+"|"+available_ip[1])
+##
+###-------------------------

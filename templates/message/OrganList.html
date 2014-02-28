@@ -30,7 +30,11 @@
         <td>{{ i.organizeid }}</td>
         <td>{{ i.message.rank }}</td>
         <td><a href="#" onclick="ShowNextOrgan('{{ i.message.rank }}','{{ i.id }}')">下级机构</a></td>
-        <td><a href="#" onclick="ChooseParent('{{ i.name }}','{{ i.id }}','{{ i.message.rank }}')">选择</a></td>
+
+
+        <td><a href="#" onclick="ChooseParent('{{ i.name }}','{{ i.id }}','{{ i.message.rank }}','{{ i.message.beginIP }}','{{ i.message.endIP }}')">选择</a></td>
+
+
     </tr>
     {% endfor %}
 </table>

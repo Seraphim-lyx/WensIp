@@ -62,7 +62,6 @@
         .table4
         {
             background-color:lightblue;
-
         }
 
     </style>
@@ -192,6 +191,16 @@
                     {{ values }}
                     {% endfor %}
                 </td>
+            </tr>
+         <!--
+            -------------------------------------分割--------------------------------------------------
+            -->
+            <tr>
+                <td align="center" colspan="2">TunnelIP网段</td>
+            </tr>
+            <tr>
+                <td>{{ cursor.beginIP }}</td>
+                <td>{{ cursor.endIP }}</td>
             </tr>
         </table>
     </div>

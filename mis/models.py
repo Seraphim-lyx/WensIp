@@ -47,6 +47,13 @@ class Message(models.Model):
     #Tunnel0
     Tunnel1=models.CharField(max_length=30)
     #Tunnel1
+
+    ##
+    #TunnelIP网段
+    beginIP = models.CharField(max_length=30)
+    endIP = models.CharField(max_length=30)
+    ##
+
     grekey=models.CharField(max_length=30)
     #gre key
     ike_preshare_key=models.CharField(max_length=30)
@@ -82,7 +89,7 @@ class SecRank(models.Model):
     organizeid=models.CharField(max_length=20)
     name=models.CharField(max_length=20)
     message=models.OneToOneField(Message,null=True)
-    iprange=models.CharField(max_length=50)
+
 
 #二级半机构
 class SecHalfRank(models.Model):
