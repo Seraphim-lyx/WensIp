@@ -84,7 +84,8 @@ function makegrekey(){
 
 function ChangeSelect(me,id){
     var text=$(me).find("option:selected").text();
-    var reChat=new RegExp("光纤");
+    var reChat=new RegExp("光纤专线");
+    var reAD=new RegExp("ADSL")
     $("#"+id).val(text)
     if(id=='circuit'){
         if(reChat.test(text)!=true){
@@ -96,5 +97,16 @@ function ChangeSelect(me,id){
             $("input[name='PublicIP']").removeAttr("disabled");
             $("input[name='PublicGATEWAY']").removeAttr("disabled");
         }
+    }
+    if(reAD.test(text)){
+        $("#uplinkBandwidth").val("512K")
+    }
+
+}
+function IP2V(ip){
+    var re = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;   //匹配IP地址的正则表达式
+    var re2=/^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\\|\/(\d{1,2})$/;
+    if(!re2.test(ip)&&!re.test(ip)){
+        alert("IP段格式错误，请按照'X.X.X.X'或'X.X.X.X/XX'格式输入");
     }
 }

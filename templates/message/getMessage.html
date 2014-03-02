@@ -26,6 +26,24 @@
             var str = "?"+url.split("?")[1];
             top.location.href = "/vpn"+str
         }
+        function ShowContent(cont){
+            var con=document.getElementById("cont");
+            con.innerHTML=cont;
+            con.style.display='block';
+        }
+        function ShowFileList(id){
+            $.post("/ShowFileList/",{"id":id},function(data){
+                $("#dl").html(data)
+                $("#dl").css("display","block")
+            })
+        }
+        function DeleteFile(id){
+            var organid='{{ cursor.id }}'
+            $.post("/DeleteFile/",{"id":id,"organid":organid},function(data){
+                $("#dl").html(data)
+            })
+        }
+
 
 
     </script>
@@ -74,6 +92,8 @@
 
     <span style="margin-left: 200px;"><b>机构代码</b>：{{ cursor.organizeid }}</span>
 
+    <a href="#" onclick="javascript:top.location.href='/setMessage/?id={{ id }}&rank={{ rank }}&rankid={{ rankid }}'" style="float: right;font-size: 10px;margin-right: 250px;color: #08517C;">点此修改机构信息</a>
+
 </div>
 <div>
     <div  class='table1'>
@@ -104,30 +124,21 @@
         <h3>内网信息</h3>
         <table border="1">
             <tr>
-                <td>接入设备类型</td>
-                <td>网络管理设备</td>
+                <td>设备厂商</td>
                 <td>内网段</td>
                 <td>内网网关</td>
+                <td>上网管理设备</td>
+                <td>上网管理设备IP</td>
                 <td>设备互联网段</td>
                 <td>设备管理信息</td>
-                <td>LookbackIP</td>
+                <td>LoopbackIP</td>
             </tr>
             <tr>
                 <td>{{ cursor.IAD }}</td>
+                <td class='Diagram'>{{ cursor.intranetDiagram }}</td>
+                <td class='GATEWAY'>{{ cursor.intranetGATEWAY }}</td>
                 <td>{{ cursor.networkSupervisor }}</td>
-                <td class='Diagram'>
-                    {% for values in cursor.intranetDiagram %}
-                        {{ values }}
-                        <br/>
-                    {% endfor %}
-                </td>
-
-                <td class='GATEWAY'>
-                    {% for values in cursor.intranetGATEWAY %}
-                        {{ values }}
-                        <br/>
-                    {% endfor %}
-                </td>
+                <td>{{ cursor.networkSupervisorIP }}</td>
                 <td>{{ cursor.deviceDiagram }} </td>
                 <td>{{ cursor.deviceManagement }} </td>
                 <td>{{ cursor.LookbackIP }}</td>
@@ -197,10 +208,21 @@
             -->
             <tr>
                 <td align="center" colspan="2">TunnelIP网段</td>
+                <td>er3100;本端ID</td>
+                <td>er3100:预共享密钥（PSK）</td>
+                <td>er3100：安全提议名称</td>
+                <td>er3100：对端地址</td>
+                <td>318：remote identify data
+                    er3100：对端ID</td>
             </tr>
             <tr>
                 <td>{{ cursor.beginIP }}</td>
                 <td>{{ cursor.endIP }}</td>
+                <td>{{ cursor.localID}}</td>
+                <td>{{ cursor.PSK }}</td>
+                <td>{{ cursor.securityname }}</td>
+                <td>{{ cursor.remoteaddress }}</td>
+                <td>{{ cursor.remoteID }}</td>
             </tr>
         </table>
     </div>
@@ -209,36 +231,42 @@
         <table border="1">
             <tr>
                 <td>nat情况</td>
-                <td width="550px">备注</td>
+                <td>备注</td>
                 <td>配置文件</td>
+                <td>junniper文件</td>
+                <td>h3c文件</td>
+                <td>vpn文件</td>
 
             </tr>
             <tr>
                 <td>{{  cursor.nat }} </td>
                 <td class='note'>
-                    {% for values in cursor.note %}
-                        {{ values }}
-                        <br/>
-                    {% endfor %}
+                    <a href="javascript:void(0)" onclick="javascript:notetext.style.display='block'">点击查看</a>
                 </td>
                 <td>
-                    {% for f in files %}
-                        {{ f }} <input type='button' onclick="download('{{ cursor.ID }}','{{ f }}')" value="下载"/>
-                    {% endfor %}
+                    <a href="javascript:void(0)" onclick="ShowFileList('{{ cursor.id }}')">点击查看</a>
                 </td>
+                <td><input type="button" value="junniper文件" onclick="excel(0)"/></td>
+                <td><input type="button" value="h3c文件" onclick="excel(1)"/></td>
+                <td><input type="button" value="vpn文件" onclick="createVPN()"/></td>
             </tr>
 
-        <!--分割线-------------------------------------------------------------------->
-        <tr>
-            <td><input type="button" value="junniper文件" onclick="excel(0)"/></td>
-            <td><input type="button" value="h3c文件" onclick="excel(1)"/></td>
-            <td><input type="button" value="vpn文件" onclick="createVPN()"/></td>
-        </tr>
+
+         <div style="border:1px #E4E4E4 solid;display: none;background-color: white;position: fixed;left: 300px;top: 300px;width: 300px;min-height: 300px;font-size: 30px;"  id="notetext">
+             <div><a href="javascript:void(0)"><img src="/static/pic/close.jpg" style="float: right;" onclick="notetext.style.display='none'"/></a></div>
+             {{ cursor.note }}
+
+         </div>
         </table>
     </div>
 </div>
 
 
 </div>
+
+<div style="position: fixed;left: 500px;top: 300px;background-color: white;width: 500px;height: 300px;display: none;" id="dl" >
+
+</div>
+
 {% endblock %}
 

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<div><a href="javascript:void(0)"><img src="/static/pic/close.jpg" style="float: right;" onclick="dl.style.display='none'"/></a></div>
+<div>
+<table>
+    <tr>
+        <th>序号</th>
+        <th>文件名</th>
+        <th>文件描述</th>
+        <th>上传日期</th>
+        <th>下载</th>
+        <th>删除</th>
+    </tr>
+    {% for f in files %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ f.name }}</td>
+            <td><a href="javascript:void (0)" onclick="ShowContent('{{ f.content }}')">点击查看</a></td>
+            <td>{{ f.date }}</td>
+            <td><a href="javascript:void (0)" onclick="javascript:top.location.href='/DownLoad/?id='+{{ f.id }}">下载</a></td>
+            <td><a href="javascript:void (0)" onclick="DeleteFile('{{ f.id }}')">删除</a></td>
+        </tr>
+    {% endfor %}
+</table>
+</div>
+<div id="cont" style="background-color: white;border: 1px #EFEFEF solid;width: 200px;min-height: 200px;position: fixed;left: 200px;display: none;"></div>
+</body>
+</html>

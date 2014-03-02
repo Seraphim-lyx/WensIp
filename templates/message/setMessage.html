@@ -10,14 +10,6 @@
                 $("#"+'{{ i }}').attr("checked","true")
             {% endfor %}
         })
-
-    function DelFile(filename,id){
-        if(confirm("确定删除吗？")){
-            $.post('/DeleteFile/',{"filename":filename,"id":id},function(data){
-                alert(data)
-            })
-        }
-    }
     </script>
     {% endblock %}
 {% block col_right %}
@@ -31,6 +23,7 @@
             <span><b>上属机构:</b><input type="text" value="{{ obj.name }}"/> </span>
             <span><b>机构名称</b><input type="text" name="department" value="{{ cursor.name }}"/></span>
             <span><b>机构代码</b><input type="text" value="{{ cursor.organizeid }}" name="organid" id="ID"/> </span>
+            <a href="#" onclick="javascript:top.location.href='/getMessage/?id={{ id }}&rank={{ rank }}&rankid={{ rankid }}'" style="float: right;font-size: 10px;color:#08517C;margin-right: 250px;">点此查看机构信息</a>
         </div>
 
         <div>
@@ -103,8 +96,8 @@
                             </select>
                         </td>
 
-                        <td>内网段<input type="button" value='add' class='addnote add' onclick="addtext('Diagram','20px')" /></td>
-                        <td>内网网关<input type="button" value='add' class='addnote add' onclick="addtext('GATEWAY','20px')"/></td>
+                        <td>内网段</td>
+                        <td>内网网关</td>
                         <td>上网管理设备</td>
 
                     </tr>
@@ -112,21 +105,12 @@
                         <td><input type="text" value="{{ cursor.IAD }}" size="30px" name="IAD" id="IAD"/></td>
 
                         <td class='Diagram'>
-                            <input type="text" value="{{ values }}" name="Diagram"/>
-                            {% for values in cursor.intranetDiagram %}
-                                {% if values != ""%}
-                                <input type="text" value="{{ values }}" name="Diagram"/>
-                                {% endif %}
-                            {% endfor %}
+                            <input type="text" value="{{ cursor.intranetDiagram }}" name="Diagram"/>
                         </td>
 
                         <td class='GATEWAY'>
-                            <input type="text" value="{{ values }}" name="GATEWAY"/>
-                            {% for values in cursor.intranetGATEWAY %}
-                                {% if values != "" %}
-                                <input type="text" value="{{ values }}" name="GATEWAY"/>
-                                {% endif %}
-                            {% endfor %}
+                            <input type="text" value="{{ cursor.intranetGATEWAY }}" name="GATEWAY"/>
+
                         </td>
                         <td><input type="text" value="{{ cursor.networkSupervisor }}" name="networkSupervisor" size="30px"/> </td>
                     </tr>
@@ -161,12 +145,12 @@
                 <h3>VPN信息</h3>
                 <table border="1">
                     <tr>
-                        <td>IKE local-name/<br/>peerID/<br/>local identify data<br/><input type="button" value="自动生成" onclick="setkey('peerID')" class='make'/> </td>
+                        <td>IKE local-name/<br/>peerID/<br/>local identify data</td>
                         <td>Tunnel0</td>
                         <td>Tunnel1</td>
-                        <td>gre key<br/><input type="button" value="自动生成" onclick="makegrekey()" class='make'/></td>
+                        <td>gre key</td>
                         <td>ike-<br/>preshare-key</td>
-                        <td>中心端 "ike peer"/<br/>终端 "policy name" <br/><input type="button" value="自动生成" onclick="setkey('IkePeer')" class='make'/></td>
+                        <td>中心端 "ike peer"/<br/>终端 "policy name"</td>
                         <td>中心端<br/>tunnel号</td>
                     </tr>
 
@@ -195,18 +179,30 @@
                         <td><input type="text" value="{{ cursor.username }}" name="username"/> </td>
                         <td><input type="text" value="{{ cursor.currentPassword }}" name="currentPassword"/> </td>
                         <td class="historicalPassword">
-                            {% for values in cursor.historicalPassword %}
-                                <input type="text" value="{{ values }}" name="historicalPassword" size="20px"/>
-                            {% endfor %}
-                            <input type="text" value="" name="historicalPassword" size="20px"/>
+                            <input type="text" value="{{ cursor.historicalPassword }}" name="historicalPassword" size="20px"/>
                         </td>
                         <td><input type="text" value="{{ cursor.currentSSH }}" name="currentSSH"/> </td>
                         <td class="historicalSSH">
-                            {% for values in historicalSSH %}
-                                <input type="text" value="{{ values }}" name="historicalSSH"/>
-                            {% endfor %}
-                            <input type="text" value="" name="historicalSSH"/>
+                            <input type="text" value="{{ cursor.historicalSSH }}" name="historicalSSH"/>
                         </td>
+                    </tr>
+                    <tr>
+                        <td align="center" colspan="2">TunnelIP网段</td>
+                        <td>er3100;本端ID</td>
+                        <td>er3100:预共享密钥（PSK）</td>
+                        <td>er3100：安全提议名称</td>
+                        <td>er3100：对端地址</td>
+                        <td>318：remote identify data
+                            er3100：对端ID</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value = "{{ cursor.beginIP }}" name="beginIP" id= "beginIP"  {% if cursor.rank != "2" %}disabled="true"{% endif %} /></td>
+                        <td><input type="text" value = "{{ cursor.endIP }}" name="endIP"   id="endIP" {% if cursor.rank != "2" %}disabled="true"{% endif %}/></td>
+                        <td><input type="text" name="localID" value="{{ cursor.localID }}"/> </td>
+                        <td><input type="text" name="PSK" value="{{ cursor.PSK }}"/> </td>
+                        <td><input type="text" name="securityname" value="{{ cursor.securityname }}"/> </td>
+                        <td><input type="text" name="remoteaddress" value="{{ cursor.remoteaddress }}"/> </td>
+                        <td><input type="text" name="remoteID" value="{{ cursor.remoteID }}"/> </td>
                     </tr>
                 </table>
             </div>
@@ -215,29 +211,34 @@
                 <table border="1">
                     <tr>
                         <td>nat情况</td>
-                        <td style="width:350px">备注<input type="button" value='add' class='addnote add' onclick="addtext('note','60px')"/> </td>
-                        <td>配置文件</td>
+                        <td>备注 </td>
                         <td>文件上传</td>
 
                     </tr>
                     <tr>
                         <td><input type="text" value="{{ cursor.nat }}" name="nat"/> </td>
                         <td class='note'>
-                            <input type="text" value="{{ cursor.note }}" name="note" size="120px"/>
+                            <a href="javascript:void (0)" onclick="javascript:notetext.style.display='block'">点此输入</a>
                         </td>
-                        <td>{% for f in files %}
-                                {{ f }}<input type="button" onclick="DelFile('{{ f }}','{{ cursor.ID }}')" value='删除' /> <br/>
-                            {% endfor %}
-                        </td>
-                        <td><input type="text" name="filename"/><br/> <input type="file"  name="file"/> </td>
+                        <td><a href="javascript:void(0) " onclick="javascript:fileupload.style.display='block' ">点击操作</a></td>
+
                     </tr>
+                    <div id="fileupload" style="display:none;background-color: white;width: 350px;height:300px;position:absolute;left: 650px;top: 650px;">
+                        选择文件:<input type="file"  name="file"/><br>
+                        文件名:<input type="text" name="filename"/><br/>
+                        文件描述:<textarea name="content"></textarea>
+
+                    </div>
+                    <div id="notetext" style="display: none;width: 300px;height: 300px;position: fixed;left: 300px;top: 300px;background-color: white;">
+                        <p>在此输入备注信息：</p>
+                        <textarea id="notearea" style="width: 100%;height: 60%;" name="note">{{ cursor.note }}</textarea>
+                        <input type="button" value="确定" onclick="javascript:notetext.style.display='none'"/>
+                    </div>
                 </table>
             </div>
         </div>
-
-
-
         <input type="submit" value="submit" class="submit"/>
+
     </form>
 
 </div>

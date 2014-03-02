@@ -8,11 +8,13 @@ import sys
 from django.http import HttpResponse, HttpResponseRedirect,Http404
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 import xlrd
 import pymongo
 
 from views.file_dao import *
 from mis.models import *
+from django.db.models import Q
 
 
 def IPSort(list):
@@ -48,43 +50,39 @@ def IPSplit(ip):
     str=ip.replace("\\","/").split("/")[0]
     return str
 
-def randomKey():
-    """
-    :生成16位随机数
-    ：区分大小写
-    """
-    s=""
-    str=string.letters+string.digits
-    str=random.sample(str,16)
-    for i in range(0,16):
-        s=str[i]+s
-    return s
-
-def connection():
-    connection=pymongo.Connection('localhost',27017)
-    db=connection.test
-    return db
-
-
-
-
 
 #获取指定层级公司数据
 @csrf_exempt
 def GetOrganList(request):
     rank=request.POST.get("rank")
     rank="2"
-
-    organs=GetRank(rank).all()
+    sign="index"
+    page=request.POST.get("page")
+    if page is None or int(page)<1:
+        page=1
+    organ=GetRank(rank).all()
+    p=Paginator(organ,8)
+    totalcount=p.num_pages
+    if int(page)>totalcount:
+        page=totalcount
+    organs=p.page(page)
     return render_to_response("message/OrganList.html",locals())
 
 #获取指定层级下级公司数据
 @csrf_exempt
 def GetNextOrgans(request):
     id=request.POST.get("id")
+    sign="next"
     rank=request.POST.get("rank")
-    print "begin",id,rank
-    organs=GetNextRank(id,rank)
+    page=request.POST.get("page")
+    if page is None or int(page)<1:
+        page=1
+    organ=GetNextRank(id,rank)
+    p=Paginator(organ,8)
+    totalcount=p.num_pages
+    if int(page)>totalcount:
+        page=totalcount
+    organs=p.page(page)
     return render_to_response("message/OrganList.html",locals())
 
 #新建选项
@@ -123,8 +121,8 @@ def SaveOrUpdateMessage(request,method):
     IAD=request.POST.get("IAD")
     networkSupervisor=request.POST.get("networkSupervisor")
     networkSupervisorIP=request.POST.get("networkSupervisorIP")
-    intranetDiagram=json.dumps(request.POST.getlist("Diagram",[]))
-    intranetGATEWAY=json.dumps(request.POST.getlist("GATEWAY",[]))
+    intranetDiagram=request.POST.get("Diagram")
+    intranetGATEWAY=request.POST.get("GATEWAY")
     deviceDiagram=request.POST.get("deviceDiagram")
     deviceManagement=request.POST.get("deviceManagement")
     LoopbackIP=request.POST.get("LoopbackIP")
@@ -146,8 +144,13 @@ def SaveOrUpdateMessage(request,method):
     historicalPassword=request.POST.get("historicalPassword")
     currentSSH=request.POST.get("currentSSH")
     historicalSSH=request.POST.get("historicalSSH")
+    localID=request.POST.get('localID')
+    PSK=request.POST.get('PSK')
+    securityname=request.POST.get('securityname')
+    remoteaddress=request.POST.get('remoteaddress')
+    remoteID=request.POST.get('remoteID')
     nat=request.POST.get("nat")
-    note=request.POST.getlist("note",[])
+    note=request.POST.get("note")
     parentID=request.POST.get("parentID")
     parentrRank=request.POST.get("parentRank")
 
@@ -157,6 +160,7 @@ def SaveOrUpdateMessage(request,method):
     #
     print "OK：",beginIP,endIP
     if method is "save":
+        #新增
         rank=request.POST.get("rank")
 
         mes=Message.objects.create()
@@ -167,7 +171,7 @@ def SaveOrUpdateMessage(request,method):
             obj.parent_rank_half=preobj
         else:
             obj=GetRank(rank).create()
-        if rank != "2" and rank !="3":
+        if rank != "2" and parentrRank != "2.5":
             preobj=GetRank(parentrRank).get(id=parentID)
             obj.parent_rank=preobj
 
@@ -175,7 +179,11 @@ def SaveOrUpdateMessage(request,method):
         obj.name=name
         obj.message=mes
         obj.save()
+
+        UpdateJSON() #修改推荐数据文件
+
     else:
+        #更新
         id=request.POST.get("id")
         mes=Message.objects.get(id=id)
         SaveFile(request,mes)
@@ -216,7 +224,13 @@ def SaveOrUpdateMessage(request,method):
     mes.currentPassword=currentPassword
     mes.historicalPassword=historicalPassword
     mes.currentSSH=currentSSH
+    mes.localID=localID
+    mes.PSK=PSK
+    mes.securityname=securityname
+    mes.remoteaddress=remoteaddress
+    mes.remoteID=remoteID
     mes.historicalSSH=historicalSSH
+    mes.note=note
     mes.nat=nat
 
     mes.save()
@@ -239,6 +253,14 @@ def newMessage(request):
     option3=Abstraction.objects.filter(type=3)
     option4=Abstraction.objects.filter(type=4)
     option5=Abstraction.objects.filter(type=5)
+
+    path="file/message.json"
+    f=open(path,'r')
+    jso=f.read().decode("gbk").encode("utf-8")
+    dump=json.loads(jso)
+    tunnel=dump['tunnel']
+    tunnel=str(tunnel)+","+str(int(tunnel)+1)
+    ipsec=dump['ipsec']
     return render_to_response("message/newMessage.html",locals())
 
 @csrf_exempt
@@ -272,8 +294,6 @@ def getMessage(request):
     elif rank != "2":
         obj=obj.parent_rank
     cursor=Message.objects.get(id=id)
-    cursor.intranetDiagram=jd.decode(cursor.intranetDiagram)
-    cursor.intranetGATEWAY=jd.decode(cursor.intranetGATEWAY)
     cursor.deviceService=jd.decode(cursor.deviceService)
     return render_to_response("message/getMessage.html",locals())
 
@@ -285,6 +305,7 @@ def setMessage(request):
     rankid=request.GET.get("rankid")
     id=request.GET.get("id")
     jd=json.JSONDecoder()
+    print id,rank,rankid
     obj=GetRank(rank).get(id=rankid)
     if rank=="3":
         if obj.parent_rank is not None:
@@ -296,14 +317,12 @@ def setMessage(request):
     elif rank == "2":
         obj.name="温氏集团"
     cursor=Message.objects.get(id=id)
+    cursor.deviceService=jd.decode(cursor.deviceService)
     option1=Abstraction.objects.filter(type=1)
     option2=Abstraction.objects.filter(type=2)
     option3=Abstraction.objects.filter(type=3)
     option4=Abstraction.objects.filter(type=4)
     option5=Abstraction.objects.filter(type=5)
-    cursor.intranetDiagram=jd.decode(cursor.intranetDiagram)
-    cursor.intranetGATEWAY=jd.decode(cursor.intranetGATEWAY)
-    cursor.deviceService=jd.decode(cursor.deviceService)
     return render_to_response("message/setMessage.html",locals())
 
 
@@ -311,19 +330,40 @@ def OranIndex(request):
     """
     按层级获取机构列表
     """
+    parent="温氏集团"
+    sign="index"
     rank=request.GET.get("rank")
+    page=request.GET.get("page")
+    if page is None or int(page)<1:
+            page=1
     if rank is None:
         return render_to_response("message/OrganIndex.html",locals())
-    organs=GetRank(rank).all()
+    organ=GetRank(rank).all()
+    p=Paginator(organ,15)
+    totalcount=p.num_pages
+    if int(page)>totalcount:
+        page=totalcount
+    organs=p.page(page)
+
     return render_to_response("message/OrganIndex.html",locals())
 
 def OrganNextIndex(request):
     """
     获取下级列表
     """
+    parent=request.GET.get("parent")
+    sign="next"
     id=request.GET.get("id")
+    page=request.GET.get("page")
+    if page is None or int(page)<1:
+        page=1
     rank=request.GET.get("rank")
-    organs=GetNextRank(id,rank)
+    organ=GetNextRank(id,rank)
+    p=Paginator(organ,15)
+    totalcount=p.num_pages
+    if int(page)>totalcount:
+        page=totalcount
+    organs=p.page(page)
     return render_to_response("message/OrganIndex.html",locals())
 
 def RemoveOrgan(request):
@@ -375,13 +415,29 @@ def GetNextRank(id,rank):
 
 @csrf_exempt
 def SearchOrganList(request):
-    name=request.POST.get("name")
-    if name is None:
+    para=request.POST.get("name")
+    if para is None:
         return render_to_response("message/SearchOrgan.html",locals())
-    organs=Message.objects.filter(name__contains=name)
+    orgnas=SearchAllRank(para)
     return render_to_response("message/SearchOrgan.html",locals())
 
+@csrf_exempt
+def AjaxSearchOrgan(request):
+    para=request.POST.get("para")
+    organs=SearchAllRank(para)
+    return render_to_response("message/AjaxSearchOrgan.html",locals())
 
+def SearchAllRank(para):
+    organs=[]
+    sec=SecRank.objects.filter(Q(name__contains=para)|Q(organizeid__contains=para))
+    organs.extend(sec)
+    sechalf=SecHalfRank.objects.filter(Q(name__contains=para)|Q(organizeid__contains=para))
+    organs.extend(sechalf)
+    thi=ThiRank.objects.filter(Q(name__contains=para)|Q(organizeid__contains=para))
+    organs.extend(thi)
+    fouth=FouRank.objects.filter(Q(name__contains=para)|Q(organizeid__contains=para))
+    organs.extend(fouth)
+    return organs
 
 
 #-------------------------------------------------分割线--------------------------------------
@@ -460,7 +516,17 @@ def getVPN(request):
         raise Http404
 #    return render_to_response("hint.html",locals())
 
-
+def UpdateJSON():
+    path="file/message.json"
+    f=open(path,'r')
+    jso=f.read().decode("gbk").encode("utf-8")
+    dump=json.loads(jso)
+    dump['tunnel']=int(dump['tunnel'])+2
+    dump['ipsec']=int(dump['ipsec'])+1
+    ff=open(path,'w')
+    ff.write(json.dumps(dump))
+    f.close()
+    ff.close()
 
 #--------------------------------------------------分割线——----------------------------------
 #####拼音生成

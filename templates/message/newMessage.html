@@ -2,6 +2,7 @@
 
     {% block headother %}
     <link rel="stylesheet" type="text/css" href="/static/css/css.css"/>
+        <script type="text/javascript" src="/static/js/js.js"></script>
     {% endblock %}
     {% block js %}
     <script type="text/javascript">
@@ -18,7 +19,6 @@
             var rw =$(window).width()/2-box;
 
             $("#OrganList").animate({top:th,opacity:'show',width:600,height:340,left:rw},500);//弹窗效果
-
             $.post("/getOrganList/",function(data){
                 $("#OrganList").html(data)
             })
@@ -43,13 +43,21 @@
         }
 
 
-        function ShowNextOrgan(rank,id){
+        function ShowNextOrgan(rank,page,id){
             /*
              异步返回子机构列表
              */
-            $("#OrganList").load("/getNextOrgan/",{"rank":rank,"id":id})
+            $.post("/getNextOrgan/",{"rank":rank,"page":page,"id":id },function(data){
+                $("#OrganList").html(data)
+            })
+
         }
-        function ChooseParent(name,id,rank,bip,eip){
+        function ShowNextPage(rank,page,id){
+            $.post("/getOrganList/",{"rank":rank,"page":page,"id":id },function(data){
+                $("#OrganList").html(data)
+            })
+        }
+        function ChooseParent(name,id,rank,bip,eip,peerID){
                 /*
                  缓存母机构信息
                  */
@@ -65,6 +73,7 @@
                 $("#OrganList").css("display","none");
                 $("#beginIP").val(bip);
                 $("#endIP").val(eip);
+                $("#peerID").val(peerID+"-")
 
                 var arr1 = bip.split(".");
                 var arr2 = eip.split(".");
@@ -78,30 +87,6 @@
                     var str = arr1.join(".")
                     document.getElementById("range").options.add(new Option(str,str));
                 }
-        }
-
-
-
-
-        function ChangeSelect(me,id){
-            /**
-             *正则匹配“光纤”
-             * 公网IP与公网网关是否可填
-             */
-
-            var text=$(me).find("option:selected").text()
-            $("#"+id).val(text)
-            if(id=='circuit'){
-                if(text!='光纤专线'){
-                    $("input[name='PublicIP']").attr("disabled","true");
-                    $("input[name='PublicGATEWAY']").attr("disabled","true");
-
-                }
-                else{
-                    $("input[name='PublicIP']").removeAttr("disabled");
-                    $("input[name='PublicGATEWAY']").removeAttr("disabled");
-                }
-            }
         }
         function JudgeRank(me){
             /*
@@ -121,13 +106,7 @@
 
             }
         }
-        function IP2V(ip){
-            var re = /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/;   //匹配IP地址的正则表达式
-            var re2=/^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\\|\/(\d{1,2})$/;
-            if(!re2.test(ip)&&!re.test(ip)){
-                alert("IP段格式错误，请按照'X.X.X.X'或'X.X.X.X/XX'格式输入");
-            }
-        }
+
         function SetGrekey(ip){
             var  iparray=ip.split(".")
             for(var i=0;i<iparray.length;i++){
@@ -168,7 +147,7 @@
         <input type="hidden" id="parentID" name="parentID"/>
         <input type="hidden" id="parentRank" name="parentRank"/>
         <span><b>机构名称：</b></span>
-        <input type="text" value="部门" name="department" id="department">
+        <input type="text" value="" name="department" id="department">
 
     </span>
     <span><b>机构代码：</b><input type="text" value="{{ organid }}" name="organid" id="ID"/> </span>
@@ -245,8 +224,8 @@
                 <td>内网段</td>
                 <td>内网网关</td>
                 <td>上网管理设备</td>
+                <td>上网管理设备IP</td>
                 <td>设备互联网段</td>
-                <td>设备互联网段IP</td>
                 <td>设备管理信息</td>
 
             </tr>
@@ -297,7 +276,7 @@
         <h3>VPN信息</h3>
         <table border="1">
             <tr>
-                <td>IKE local-name/<br/>peerID/<br/>local identify data<br/><input type="button" value="自动生成" onclick="setkey('peerID')" class='make'/> </td>
+                <td>IKE local-name/<br/>peerID/<br/>local identify data</td>
 
                 <!--
                  -----------------------------------
@@ -325,14 +304,14 @@
                  -->
 
 
-                <td>gre key(默认根据内网段生成)</td>
+                <td>gre key</td>
                 <td>ike-<br/>preshare-key</td>
-                <td>中心端 "ike peer"/<br/>终端 "policy name" <br/><input type="button" value="自动生成" onclick="setkey('IkePeer')" class='make'/></td>
+                <td>中心端 "ike peer"/<br/>终端 "policy name"</td>
                 <td>中心端<br/>tunnel号</td>
             </tr>
 
             <tr>
-                <td><input type="text"  name="peerID" id="peerID"/> </td>
+                <td><input type="text"  name="peerID" id="peerID" placeholder="选择母公司生成前缀"/> </td>
 
 
                 <!--
@@ -349,10 +328,10 @@
                 <!--
                 -----------------------------------------------------------------
                 -->
-                <td><input type="text"  name="grekey" id="grekey"/> </td>
+                <td><input type="text"  name="grekey" id="grekey" placeholder="默认根据内网段生成"/> </td>
                 <td><input type="text" value="系统生成" disabled/> </td>
                 <td><input type="text"  name="terminalIkePeer" id="IkePeer"/> </td>
-                <td><input type="text"  name="centerTunnel"/> </td>
+                <td><input type="text"  name="centerTunnel" placeholder="推荐号：{{ tunnel }}"/> </td>
             </tr>
             <tr>
                 <td>中心端ipsec <br/>policy-template<br/>模板号</td>
@@ -365,7 +344,7 @@
 
             </tr>
             <tr>
-                <td><input type="text"  name="centerTemplate"/> </td>
+                <td><input type="text"  name="centerTemplate"placeholder="推荐号:{{ ipsec }}"/> </td>
                 <td><input type="text"  name="centerNQA"/> </td>
                 <td><input type="text"  name="username"/> </td>
                 <td><input type="text"  name="currentPassword"/> </td>
@@ -379,10 +358,22 @@
             -->
             <tr>
                 <td align="center" colspan="2">TunnelIP网段</td>
+                <td>er3100;本端ID</td>
+                <td>er3100:预共享密钥（PSK）</td>
+                <td>er3100：安全提议名称</td>
+                <td>er3100：对端地址</td>
+                <td>318：remote identify data
+                    er3100：对端ID</td>
             </tr>
             <tr>
                 <td><input type="text" value = "" name="beginIP" id= "beginIP"  /></td>
                 <td><input type="text" value = "" name="endIP"   id="endIP" /></td>
+                <td><input type="text" name="localID"/> </td>
+                <td><input type="text" name="PSK"/> </td>
+                <td><input type="text" name="securityname"/> </td>
+                <td><input type="text" name="remoteaddress"/> </td>
+                <td><input type="text" name="remoteID"/> </td>
+
             </tr>
         </table>
     </div>
@@ -391,7 +382,7 @@
         <table border="1">
             <tr>
                 <td>nat情况</td>
-                <td width="550px">备注<input type="button" value='add' class='addnote add' onclick="addtext('note','60px')"/> </td>
+                <td width="60px">备注</td>
                 <td>配置文件</td>
 
             </tr>
@@ -399,7 +390,7 @@
                 <td><input type="text" name="nat"/> </td>
                 <td class='note'>
 
-                        <input type="text" name="note" size="120px"/>
+                        <input type="text" name="note" size="60px"/>
 
                 </td>
                 <td><input type="file"  name="config" disabled="true"/> </td>

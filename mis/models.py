@@ -76,12 +76,30 @@ class Message(models.Model):
     #当前SSH
     historicalSSH=models.CharField(max_length=30)
     #历史SSH
+    localID=models.CharField(max_length=30)
+    #er3100;本端ID
+    PSK=models.CharField(max_length=30)
+    #er3100:预共享密钥（PSK）
+    securityname=models.CharField(max_length=30)
+    #er3100：安全提议名称
+    remoteaddress=models.CharField(max_length=30)
+    #er3100：对端地址
+    remoteID=models.CharField(max_length=30)
+    #er3100：对端ID
     nat=models.TextField(max_length=300)
     #nat情况
     note=models.TextField(max_length=300)
     #备注
     rank=models.CharField(max_length=50)
     #机构层级
+
+    def __unicode__(self):
+        return '%s' % (self.id)
+
+    def toJSON(self):
+        import json
+        return json.dumps(dict([(attr, getattr(self, attr)) for attr in [f.name for f in
+self._meta.fields]]))
 
 #二级机构
 class SecRank(models.Model):

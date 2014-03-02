@@ -29,6 +29,9 @@
             height: 25px;
             text-align: center;
         }
+        td,td a{
+            color:#0766D4;
+        }
 
 
     </style>
@@ -49,6 +52,7 @@
 
     </div>
     <div style="border-left: 1px #000000 solid;float: left;min-height: 500px;">
+    <div style="font-size: 30px;margin-left: 20px;font-weight: bold;">{{ parent }}</div>
     <table>
         <tr>
             <th>序号</th>
@@ -67,11 +71,23 @@
             <td>{{ i.organizeid }}</td>
             <td><a href="/getMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">查看信息</a></td>
             <td><a href="/setMessage/?id={{ i.message.id }}&rank={{ i.message.rank }}&rankid={{ i.id }}">修改信息</a></td>
-            <td><a href="/OrganNextIndex/?id={{ i.id }}&rank={{ i.message.rank }}">子公司列表</a></td>
+            <td><a href="/OrganNextIndex/?id={{ i.id }}&rank={{ i.message.rank }}&parent={{ i.message.name }}">子公司列表</a></td>
             <td><a href="/RemoveOrgan/?id={{ i.id }}&rank={{ i.message.rank }}">删除</a></td>
         </tr>
         {% endfor %}
+
     </table>
+        <div style="float: right;">
+            <span>当前第{{ page }}页</span>
+            {% if sign == "index" %}
+                <a href="/OrganIndex/?rank={{ rank }}&page={{ page|add:-1 }}">上一页</a>
+                <a href="/OrganIndex/?rank={{ rank }}&page={{ page|add:1 }}">下一页</a>
+            {% else %}
+                <a href="/OrganNextIndex/?rank={{ rank }}&page={{ page|add:-1 }}&id={{ id }}&parent={{ parent }}">上一页</a>
+                <a href="/OrganNextIndex/?rank={{ rank }}&page={{ page|add:1 }}&id={{ id }}&parent={{ parent }}">下一页</a>
+            {% endif %}
+            共{{ totalcount }}页
+        </div>
     </div>
     </div>
 {% endblock %}

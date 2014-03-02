@@ -4,6 +4,7 @@ from views import excelfile
 from views import more
 from views import message_dao
 from views import option_dao
+from views import file_dao
 import settings
 
 # Uncomment the next two lines to enable the admin:
@@ -20,18 +21,12 @@ urlpatterns = patterns('',
         (r'^setMessage/$',message_dao.setMessage),
         (r'^newmessage/$',message_dao.newMessage),
         (r'^test2/$',views.test2),
-        (r'^reback/$',views.reback),
-        (r'^excel/$',views.excel),
-        (r'^main/$',views.main),
-        (r'index/$',views.index),
+        (r'^AjaxSearchOrgan/$',message_dao.AjaxSearchOrgan),
         (r'^UpdateMessage/$',message_dao.UpdateMessage),
-        (r'^SearchById/$',views.SearchById),
-        (r'^SearchByName/$',views.SearchByName),
-        (r'^login/$',views.login),
-        (r'^Exit/$',views.Exit),
         (r'^setDefaultUser/$',views.setDefaultUser),
-        (r'^DeleteFile/$',views.DeleteFile),
-        (r'^DownLoad/$',views.ReadFile),
+        (r'^ShowFileList/$',file_dao.GetFileList),
+        (r'^DeleteFile/$',file_dao.DeleteFile),
+        (r'^DownLoad/$',file_dao.ReadFile),
         (r'^excelfile/$',excelfile.excel_request),
         (r'^test3/$',excelfile.test),
         (r'^uploadtest/$',more.upload_file),

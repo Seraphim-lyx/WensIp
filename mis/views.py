@@ -35,7 +35,14 @@ def setDefaultUser(request):
     return  HttpResponse("ok")
 
 def test(request):
-    d=uuid.uuid4()
+    path="file/message.json"
+    f=open(path,'r')
+    jso=f.read().decode("gbk").encode("utf-8")
+    dump=json.loads(jso)
+    dump['tunnel']=int(dump['tunnel'])+2
+    ff=open(path,'w')
+    ff.write(json.dumps(dump))
+    ff.close()
     return render_to_response("test.html",locals())
 
 def submit(request):

@@ -3,6 +3,12 @@
 <head>
     <title></title>
     <script type="text/javascript">
+        function SearchOrgan(){
+            var para=$("#FindOrgan").val()
+            $.post("/AjaxSearchOrgan/",{"para":para },function(data){
+                $("#OrganList").html(data)
+            })
+        }
     </script>
     <style type="text/css">
        .Organs th,.Organs td{
@@ -21,7 +27,7 @@
         <th>机构名称</th>
         <th>机构代号</th>
         <th>机构层级</th>
-        <th>下级机构列表</th>
+{#        <th>下级机构列表</th>#}
         <th>选定机构</th>
     </tr>
     {% for i in organs %}
@@ -29,18 +35,31 @@
         <td>{{ i.name }}</td>
         <td>{{ i.organizeid }}</td>
         <td>{{ i.message.rank }}</td>
-        <td><a href="#" onclick="ShowNextOrgan('{{ i.message.rank }}','{{ i.id }}')">下级机构</a></td>
+{#        <td><a href="#" onclick="ShowNextOrgan('{{ i.message.rank }}','1','{{ i.id }}')">下级机构</a></td>#}
 
 
-        <td><a href="#" onclick="ChooseParent('{{ i.name }}','{{ i.id }}','{{ i.message.rank }}','{{ i.message.beginIP }}','{{ i.message.endIP }}')">选择</a></td>
+        <td><a href="#" onclick="ChooseParent('{{ i.name }}','{{ i.id }}','{{ i.message.rank }}','{{ i.message.beginIP }}','{{ i.message.endIP }}','{{ i.message.peerID }}')">选择</a></td>
 
 
     </tr>
     {% endfor %}
 </table>
 </div>
-<div style="float: right;margin-right: 30px;margin-top: 20px;">
-     查找机构:<input type="text" id="FindOrgan"/>
+<div style="float: right;margin-top: 20px;">
+    <span>当前第{{ page }}页</span>
+    {% if sign == "index" %}
+        <a href="javascript:void (0)" onclick="ShowNextPage('{{ rank }}','{{ page|add:-1 }}','{{ i.id }}')">上一页</a>
+        <a href="javascript:void (0)" onclick="ShowNextPage('{{ rank }}','{{ page|add:1 }}','{{ i.id }}')">下一页</a>
+    {% else %}
+        <a href="javascript:void (0)" onclick="ShowNextOrgan('{{ rank }}','{{ page|add:-1 }}','{{ id }}')">上一页</a>
+        <a href="javascript:void (0)" onclick="ShowNextOrgan('{{ rank }}','{{ page|add:1 }}','{{ id }}')">下一页</a>
+    {% endif %}
+    共{{ totalcount }}页
 </div>
+<div style="float: right;margin-right: 30px;margin-top: 20px;">
+     查找机构:<input type="text" id="FindOrgan" placeholder="输入公司名称或代号"/>
+    <input type="button" value="搜索" onclick="SearchOrgan()"/>
+</div>
+
 </body>
 </html>

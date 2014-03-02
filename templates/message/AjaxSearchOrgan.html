@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<table class="Organs">
+    <tr>
+        <th>机构名称</th>
+        <th>机构代号</th>
+        <th>机构层级</th>
+        <th>下级机构列表</th>
+        <th>选定机构</th>
+    </tr>
+    {% for i in organs %}
+        <tr>
+            <td>{{ i.name }}</td>
+            <td>{{ i.organizeid }}</td>
+            <td>{{ i.message.rank }}</td>
+            <td><a href="#" onclick="ShowNextOrgan('{{ i.message.rank }}','1','{{ i.id }}')">下级机构</a></td>
+            <td><a href="#" onclick="ChooseParent('{{ i.name }}','{{ i.id }}','{{ i.message.rank }}','{{ i.message.beginIP }}','{{ i.message.endIP }}')">选择</a></td>
+
+
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

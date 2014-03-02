@@ -20,6 +20,18 @@ def GetOptionList(request):
     if type is None:
         type=-1
     abs=Abstraction.objects.filter(type=type)
+    typename=""
+    if type == "1":
+        typename="所属运营商"
+    elif type == "2":
+        typename="线路类型"
+    elif type == "3":
+        typename="设备厂商"
+    elif type == "4":
+        typename="下行带宽"
+    elif type == "5":
+        typename="上行带宽"
+    print typename
     return render_to_response("option/OptionIndex.html",locals())
 
 @csrf_exempt
