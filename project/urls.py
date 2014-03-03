@@ -5,6 +5,7 @@ from views import more
 from views import message_dao
 from views import option_dao
 from views import file_dao
+from views import user_dao
 import settings
 
 # Uncomment the next two lines to enable the admin:
@@ -23,7 +24,12 @@ urlpatterns = patterns('',
         (r'^test2/$',views.test2),
         (r'^AjaxSearchOrgan/$',message_dao.AjaxSearchOrgan),
         (r'^UpdateMessage/$',message_dao.UpdateMessage),
-        (r'^setDefaultUser/$',views.setDefaultUser),
+
+        (r'^index/$',user_dao.index),
+        (r'^setDefaultUser/$',user_dao.setDefaultUser),
+        (r'^login/$',user_dao.login),
+        (r'^logout/$',user_dao.logout),
+
         (r'^ShowFileList/$',file_dao.GetFileList),
         (r'^DeleteFile/$',file_dao.DeleteFile),
         (r'^DownLoad/$',file_dao.ReadFile),

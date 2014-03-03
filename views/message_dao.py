@@ -144,11 +144,11 @@ def SaveOrUpdateMessage(request,method):
     historicalPassword=request.POST.get("historicalPassword")
     currentSSH=request.POST.get("currentSSH")
     historicalSSH=request.POST.get("historicalSSH")
-    localID=request.POST.get('localID')
-    PSK=request.POST.get('PSK')
-    securityname=request.POST.get('securityname')
-    remoteaddress=request.POST.get('remoteaddress')
-    remoteID=request.POST.get('remoteID')
+    # localID=request.POST.get('localID')
+    # PSK=request.POST.get('PSK')
+    # securityname=request.POST.get('securityname')
+    # remoteaddress=request.POST.get('remoteaddress')
+    # remoteID=request.POST.get('remoteID')
     nat=request.POST.get("nat")
     note=request.POST.get("note")
     parentID=request.POST.get("parentID")
@@ -224,11 +224,11 @@ def SaveOrUpdateMessage(request,method):
     mes.currentPassword=currentPassword
     mes.historicalPassword=historicalPassword
     mes.currentSSH=currentSSH
-    mes.localID=localID
-    mes.PSK=PSK
-    mes.securityname=securityname
-    mes.remoteaddress=remoteaddress
-    mes.remoteID=remoteID
+    # mes.localID=localID
+    # mes.PSK=PSK
+    # mes.securityname=securityname
+    # mes.remoteaddress=remoteaddress
+    # mes.remoteID=remoteID
     mes.historicalSSH=historicalSSH
     mes.note=note
     mes.nat=nat
@@ -415,10 +415,11 @@ def GetNextRank(id,rank):
 
 @csrf_exempt
 def SearchOrganList(request):
-    para=request.POST.get("name")
+    para=request.POST.get("para")
+
     if para is None:
         return render_to_response("message/SearchOrgan.html",locals())
-    orgnas=SearchAllRank(para)
+    organs=SearchAllRank(para)
     return render_to_response("message/SearchOrgan.html",locals())
 
 @csrf_exempt

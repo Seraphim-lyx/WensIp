@@ -188,21 +188,21 @@
                     </tr>
                     <tr>
                         <td align="center" colspan="2">TunnelIP网段</td>
-                        <td>er3100;本端ID</td>
-                        <td>er3100:预共享密钥（PSK）</td>
-                        <td>er3100：安全提议名称</td>
-                        <td>er3100：对端地址</td>
-                        <td>318：remote identify data
-                            er3100：对端ID</td>
+{#                        <td>er3100;本端ID</td>#}
+{#                        <td>er3100:预共享密钥（PSK）</td>#}
+{#                        <td>er3100：安全提议名称</td>#}
+{#                        <td>er3100：对端地址</td>#}
+{#                        <td>318：remote identify data#}
+{#                            er3100：对端ID</td>#}
                     </tr>
                     <tr>
                         <td><input type="text" value = "{{ cursor.beginIP }}" name="beginIP" id= "beginIP"  {% if cursor.rank != "2" %}disabled="true"{% endif %} /></td>
                         <td><input type="text" value = "{{ cursor.endIP }}" name="endIP"   id="endIP" {% if cursor.rank != "2" %}disabled="true"{% endif %}/></td>
-                        <td><input type="text" name="localID" value="{{ cursor.localID }}"/> </td>
-                        <td><input type="text" name="PSK" value="{{ cursor.PSK }}"/> </td>
-                        <td><input type="text" name="securityname" value="{{ cursor.securityname }}"/> </td>
-                        <td><input type="text" name="remoteaddress" value="{{ cursor.remoteaddress }}"/> </td>
-                        <td><input type="text" name="remoteID" value="{{ cursor.remoteID }}"/> </td>
+{#                        <td><input type="text" name="localID" value="{{ cursor.localID }}"/> </td>#}
+{#                        <td><input type="text" name="PSK" value="{{ cursor.PSK }}"/> </td>#}
+{#                        <td><input type="text" name="securityname" value="{{ cursor.securityname }}"/> </td>#}
+{#                        <td><input type="text" name="remoteaddress" value="{{ cursor.remoteaddress }}"/> </td>#}
+{#                        <td><input type="text" name="remoteID" value="{{ cursor.remoteID }}"/> </td>#}
                     </tr>
                 </table>
             </div>
@@ -223,15 +223,18 @@
                         <td><a href="javascript:void(0) " onclick="javascript:fileupload.style.display='block' ">点击操作</a></td>
 
                     </tr>
-                    <div id="fileupload" style="display:none;background-color: white;width: 350px;height:300px;position:absolute;left: 650px;top: 650px;">
-                        选择文件:<input type="file"  name="file"/><br>
+                    <div id="fileupload" style="display:none;background-color: white;width: 350px;height:300px;position:absolute;left: 650px;top: 550px;">
+                        <div><a href="javascript:void(0)"><img src="/static/pic/close.jpg" style="float: right;" onclick="fileupload.style.display='none'"/></a></div>
+                        <div>
+                        <p>选择文件:<input type="file"  name="file"/></p>
                         文件名:<input type="text" name="filename"/><br/>
-                        文件描述:<textarea name="content"></textarea>
-
+                        文件描述:<textarea name="content" style="width: 95%;height: 150px;"></textarea>
+                        </div>
                     </div>
-                    <div id="notetext" style="display: none;width: 300px;height: 300px;position: fixed;left: 300px;top: 300px;background-color: white;">
+                    <div id="notetext" style="display: none;width: 400px;height: 300px;position: fixed;left: 300px;top: 300px;background-color: white;">
+                        <div><a href="javascript:void(0)"><img src="/static/pic/close.jpg" style="float: right;" onclick="notetext.style.display='none'"/></a></div>
                         <p>在此输入备注信息：</p>
-                        <textarea id="notearea" style="width: 100%;height: 60%;" name="note">{{ cursor.note }}</textarea>
+                        <textarea id="notearea" style="width: 95%;height: 60%;" name="note">{{ cursor.note }}</textarea>
                         <input type="button" value="确定" onclick="javascript:notetext.style.display='none'"/>
                     </div>
                 </table>
