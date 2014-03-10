@@ -4,6 +4,8 @@ import xlwt
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
+from message_dao import GetRank,convert
+
 from mis import models
 def excel_init(select_index):
     '''
@@ -25,38 +27,63 @@ def junniper_messages(request):
     读取网页表格信息
     '''
     messages=[]
-    #分公司
-    messages.append(request.POST.get('name'))
-    #机构信息
-    messages.append("温氏集团")
-    #分支机构名
-    messages.append(request.POST.get('department'))
+    rank=request.GET.get("rank")
+    rankid=request.GET.get("rankid")
+    id=request.GET.get("id")
+    data = models.Message.objects.get(id=id)
+    obj=GetRank(rank).get(id=rankid)
+
+    def setName(*names):
+        for name in names:
+            messages.append(name)
+        return None
+
+    # 设置 分公司 机构 分支机构名称
+    if rank == '2':
+        setName(obj.name,obj.name,obj.name)
+    elif rank == '2.5':
+        setName(obj.parent_rank.name,obj.parent_rank.name,obj.name)
+    elif rank == "3":
+        if obj.parent_rank is not None:
+            setName(obj.parent_rank.name,obj.parent_rank.name,obj.name)
+        else:
+            setName(obj.parent_rank_half.parent_rank.name,obj.parent_rank_half.name,obj.name)
+    elif rank == '4':
+        if obj.parent_rank.parent_rank is not None:
+            setName(obj.parent_rank.parent_rank.name,obj.parent_rank.name,obj.name)
+        else:
+            setName(obj.parent_rank.parent_rank_half.name,obj.parent_rank.name,obj.name)
     #线路类型
-    messages.append(request.POST.get('circuit'))
+    messages.append(data.circuit)
     #设备类型
-    messages.append(request.POST.get("IAD"))
+    messages.append(data.IAD)
     #内网段
-    diagram = request.POST.get("Diagram")
-    messages.append(diagram)
+    messages.append(data.intranetDiagram)
     #内网网关
-    gateway=request.POST.get("GATEWAY")
-    messages.append(gateway)
+    messages.append(data.intranetGATEWAY)
     #本地端ID
-    messages.append(request.POST.get("peerID"))
+    first = " ".join(convert(messages[0])).title().replace(" ","")
+    second = " " .join(convert(messages[1])).title().replace(" ","")
+    third = " ".join(convert(messages[2])).title().replace(" ","")
+    local_id = first+"-"+second+"-"+third
+    messages.append(local_id)
     #公网地址
-    messages.append(request.POST.get('PublicIP'))
+    messages.append(data.PublicIP)
     #所在地DNS
-    messages.append(request.POST.get('DNS'))
+    messages.append(data.DNS)
     #预共享密钥（PSK）
-    messages.append('预共享密钥（PSK）?')
+    messages.append(data.PSK)
     #密码
-    messages.append(request.POST.get("currentPassword"))
+    messages.append(data.currentPassword)
     #安全提议名称????
-    messages.append("安全提议名称\n对等体名称\n安全策略名称?")
+    first = get_short_cut(convert(messages[0]))
+    second = get_short_cut(convert(messages[1]))
+    third = data.grekey
+    messages.append(first+"-"+second+"-"+third)
     #对端地址?????
-    messages.append('对端地址?')
+    messages.append('219.131.174.199')
     #identify data 对端ID???????
-    messages.append('identify data /对端ID?')
+    messages.append('XXZX-SSG520')
     return messages
 
 def h3c_messages(request):
@@ -64,42 +91,76 @@ def h3c_messages(request):
     读取网页表格信息
     '''
     messages=[]
-    #分公司
-    messages.append(request.POST.get('name'))
-    #机构
-    messages.append("温氏集团")
-    #分支机构名
-    messages.append(request.POST.get('department'))
+    rank=request.GET.get("rank")
+    rankid=request.GET.get("rankid")
+    id=request.GET.get("id")
+    data = models.Message.objects.get(id=id)
+    obj=GetRank(rank).get(id=rankid)
+
+    def setName(*names):
+        for name in names:
+            messages.append(name)
+        return None
+    if rank == '2':
+        setName(obj.name,obj.name,obj.name)
+    elif rank == '2.5':
+        setName(obj.parent_rank.name,obj.parent_rank.name,obj.name)
+    elif rank == "3":
+        if obj.parent_rank is not None:
+            setName(obj.parent_rank.name,obj.parent_rank.name,obj.name)
+        else:
+            setName(obj.parent_rank_half.parent_rank.name,obj.parent_rank_half.name,obj.name)
+    elif rank == '4':
+        if obj.parent_rank.parent_rank is not None:
+            setName(obj.parent_rank.parent_rank.name,obj.parent_rank.name,obj.name)
+        else:
+            setName(obj.parent_rank.parent_rank_half.name,obj.parent_rank.name,obj.name)
     #线路类型
-    messages.append(request.POST.get('circuit'))
+    messages.append(data.circuit)
     #设备类型
-    messages.append(request.POST.get("IAD"))
+    messages.append(data.IAD)
     #内网段
-    diagram = request.POST.get("Diagram")
-    messages.append(diagram)
+    messages.append(data.intranetDiagram)
     #内网网关
-    gateway=request.POST.get("GATEWAY")
-    messages.append(gateway)
+    messages.append(data.intranetGATEWAY)
     #ike-local-name
-    messages.append(request.POST.get("peerID"))
+    messages.append(data.peerID)
     #公网地址
-    messages.append(request.POST.get('PublicIP'))
+    messages.append(data.PublicIP)
     #所在地DNS
-    messages.append(request.POST.get('DNS'))
+    messages.append(data.DNS)
     #tunnelIP0
-    messages.append(request.POST.get("Tunnel0"))
+    messages.append(data.Tunnel0)
     #tunnelIP1
-    messages.append(request.POST.get("Tunnel1"))
+    messages.append(data.Tunnel1)
     #gre key
-    messages.append(request.POST.get("grekey"))
+    messages.append(data.grekey)
     #ike-pre-share-key
-    messages.append(request.POST.get("ikepresharekey"))
+    messages.append(data.ike_preshare_key)
     #password
-    messages.append(request.POST.get("currentPassword"))
+    messages.append(data.currentPassword)
     #1000f ike peer 318的policy name
-    messages.append("1000f ike peer/318的policy name")
+    #
+    # 分公司（拼音）-机构（拼音）-grekey
+    first = ""
+    second = ""
+    third = data.grekey
+    policy_name = ""
+    first = get_short_cut(convert(messages[0]))
+    second = get_short_cut(convert(messages[1]))
+    try:
+        policy_name = first+"-"+second+"-"+str(third)
+    except:
+        policy_name = first+"-"+second+"-"+"???"
+    messages.append(policy_name)
     return messages
 
+
+def get_short_cut(pinyin):
+    short = ""
+    for letter in pinyin:
+        short += letter[0]
+    return short
 def write_excel(excelCaption,messages,filename):
     '''
     初始化准备写的excel文件
@@ -134,6 +195,7 @@ def excel_request(request):
     '''
     处理来自网页的excel需求
     '''
+
     try:
         filetype = int(request.GET.get("filetype"))
     except TypeError:

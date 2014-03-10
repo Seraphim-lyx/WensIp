@@ -10,7 +10,7 @@ from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 import xlrd
-import pymongo
+
 
 from views.file_dao import *
 from mis.models import *
@@ -134,7 +134,6 @@ def SaveOrUpdateMessage(request,method):
 
 
     ike_preshare_key = jia_mi(request)
-
     terminalIkePeer=request.POST.get("terminalIkePeer")
     centerTunnel=request.POST.get("centerTunnel")
     centerTemplate=request.POST.get("centerTemplate")
@@ -158,7 +157,7 @@ def SaveOrUpdateMessage(request,method):
     beginIP = request.POST.get("beginIP")
     endIP = request.POST.get("endIP")
     #
-    print "OK：",beginIP,endIP
+
     if method is "save":
         #新增
         rank=request.POST.get("rank")
@@ -236,6 +235,7 @@ def SaveOrUpdateMessage(request,method):
     mes.save()
 
 
+
 @csrf_exempt
 def CreateNewMessage(request):
     """
@@ -305,7 +305,6 @@ def setMessage(request):
     rankid=request.GET.get("rankid")
     id=request.GET.get("id")
     jd=json.JSONDecoder()
-    print id,rank,rankid
     obj=GetRank(rank).get(id=rankid)
     if rank=="3":
         if obj.parent_rank is not None:
@@ -477,7 +476,7 @@ def createVPN(cursor):
     message["<12>"] = cursor.grekey
 
     ff = codecs.open(r'f:\project\vrpcfg1.cfg',"r","gbk")
-    output = open(cursor.name.decode("utf8")+".cfg","w")
+    output = open(cursor.name+".cfg","w")
     p = re.compile("<\d{1,2}>")
     for line in ff:
         for m in p.finditer(line):
@@ -511,7 +510,7 @@ def getVPN(request):
 
         cursor=Message.objects.get(id=id)
         createVPN(cursor)
-        filename =  cursor.name.decode("utf8")+".cfg"
+        filename =  cursor.name+".cfg"
         return ReadFile(request,filename)
     else:
         raise Http404
@@ -536,32 +535,33 @@ def convert(ch):
     该函数通过输入汉字返回其拼音，如果输入多个汉字，则返回第一个汉字拼音.
        如果输入数字字符串，或者输入英文字母，则返回其本身(英文字母如果为大写，转化为小写)
     """
-    if str(type(ch)).__name__!="unicode":
-        ch = unicode(ch,"utf8")
-    length = len(u'拼') #测试汉字占用字节数，utf-8，汉字占用3字节.bg2312，汉字占用2字节
-    hanzis=[]
-    ch_length = len(ch)
-    i = 0
-    while True:
-        '''
-        生成汉字的编码
-        '''
-        intord = ch[i:i+length]
-        hanzis.append(intord)
-        i += length
-        if i+length > ch_length:
-            break
-        pass
-    pinyin=[]
-    #查询字库获取拼音
-    f = codecs.open("convert-utf-8.txt","r","utf8")
-    for hanzi in hanzis:
-        for line in f:
-            intord = ord(hanzi)
-            if hanzi in line:
-                pinyin.append( line[length:len(line)-2])
+    try:
+        length = len(u'拼') #测试汉字占用字节数，utf-8，汉字占用3字节.bg2312，汉字占用2字节
+        hanzis=[]
+        ch_length = len(ch)
+        i = 0
+        while True:
+            '''
+            生成汉字的编码
+            '''
+            intord = ch[i:i+length]
+            hanzis.append(intord)
+            i += length
+            if i >= ch_length:
                 break
-    f.close()
+            pass
+        pinyin=[]
+        #查询字库获取拼音
+        f = codecs.open("convert-utf-8.txt","r","utf8")
+        for hanzi in hanzis:
+            for line in f:
+                if hanzi in line:
+                    pinyin.append( line[length:len(line)-3])
+                    break
+            f.seek(0)
+        f.close()
+    except:
+        pinyin=[].append("???")
     return pinyin
 
 #####------------加密开始
@@ -592,7 +592,11 @@ def create_x(gong_si_name):
         #去掉unicode字符串中的"\u"
         chs = str(chs.replace('\\u','')).split("'")[1]
         #将字符串转为数字，求和
-        sum += (int(chs,16))
+        try:
+            sum += (int(chs,16))
+        except:
+            sum += random.randint(1111,9999)
+            break
         i += length
         if i+length > ch_length:
             break
@@ -602,6 +606,7 @@ def create_x(gong_si_name):
     x_value = sin_value*1234567
     while len(str(abs(x_value))) < 6:
         x_value += (x_value*1234567)
+
     return x_value
 
 def create_y(wang_guan):
@@ -614,11 +619,15 @@ def create_y(wang_guan):
     '''
     sum = 0
     for ch in wang_guan:
-        sum += ord(ch)
+        try:
+            sum += ord(ch)
+        except:
+            break
     cos_value = cos(sum)
     y_value = cos_value*7654321
     while len(str(abs(y_value)))<6:
         y_value += (y_value*7654321)
+
     return y_value
 
 def create_z(ike_local_name):
@@ -629,9 +638,10 @@ def create_z(ike_local_name):
     3.将sum的值与135相乘求得参数z的最终值
     '''
     #去掉字符串中的“-”
+    ike_local_name = ike_local_name.replace("-","")
     if ike_local_name:
 
-        ike_local_name = ike_local_name.replace("-","")
+
 
         sum = 0
 
@@ -643,7 +653,7 @@ def create_z(ike_local_name):
                 int_ord = ord(ike_local_name[i])
                 sum += int_ord
             except:
-                pass
+                break
             i+=1
             if i >= str_len:
                 break
@@ -688,12 +698,12 @@ def jia_mi(request):
     y = ""
     z = ""
 
-    x = create_x(request.POST.get("department"))
-    y = create_y(request.POST.get("GATEWAY"))
+    x = create_x(request.POST.get("department","拼音"))
+    y = create_y(request.POST.get("GATEWAY","127.0.0.1"))
 
-    z = create_z(request.POST.get("peerID"))
-
+    z = create_z(request.POST.get("peerID",""))
     ike_preshare_key= meger(x,y,z)
+
     return ike_preshare_key
 #--------------------------------------------------------------------------
 
@@ -703,23 +713,23 @@ def jia_mi(request):
 def tunnel_ip(request):
 
     ip = request.GET.get("url","")
-    print ip
+
     iphead = ".".join(ip.split(".")[:3])+"."
-    ip_message = Message.objects.filter(Tunnel0__contains=iphead,Tunnel1__contains=iphead).order_by("Tunnel0")
+    ip_message = Message.objects.filter(Tunnel0__contains=iphead,Tunnel1__contains=iphead)
     available_ip=[]
     usable = True
     step = 1
     while step < 255:
         ip = iphead+str(step)
         for mes in ip_message:
-            if ip in mes.Tunnel0 or ip in mes.Tunnel1:
+            if ip == mes.Tunnel0 or ip == mes.Tunnel1:
                 usable = False
                 break
         if usable:
             available_ip.append(ip)
         usable = True
         step += 4
-    print available_ip
-    return HttpResponse(available_ip[0]+"|"+available_ip[1])
+    last = int(available_ip[0].split(".")[3])+1
+    return HttpResponse(available_ip[0]+"|"+iphead+str(last))
 ##
 ###-------------------------
