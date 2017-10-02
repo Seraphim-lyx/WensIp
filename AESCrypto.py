@@ -1,0 +1,74 @@
+from Crypto.Cipher import AES
+from Crypto import Random
+from abc import *
+import hashlib
+
+
+class AESCrypto(object):
+    """ 
+    AESCrypto Class that supports Encryption and Decryption for 
+    sepecific plainText. Key and encyrption mode should be input 
+    when generate the instance. In modes like CBC, plaintext will
+    be complemented with PKCS5 padding to the multiple of 16 bytes
+    length
+
+    """
+
+    def __init__(self, plainText, key, mode):
+        self.plainText = plainText.encode(
+            'utf8')  # encoding plainText with utf8
+        self.key = self.keyGenerate(key)  # genereate 256bits key by sha256
+        self.mode = mode
+
+    def keyGenerate(self, key):
+        """generate a 256bits key by given key"""
+        return hashlib.sha256(key.encode('utf8')).digest()
+
+    def Encrypt(self):
+        """Encryption method for given plaintext"""
+        self.IV = Random.new().read(AES.block_size)  # block_size = 16
+        print(self.IV)
+        encryptor = AES.new(self.key, self.mode, self.IV)
+        self.plainText += self.padding()  # complement the missing bytes
+        return encryptor.encrypt(self.plainText)
+
+    def Decrypt(self, cipherText):
+        """Decryption by given cipherText"""
+        decryptor = AES.new(self.key, self.mode, self.IV)
+        pText = decryptor.decrypt(cipherText).decode('utf8')
+        return self.unpadding(pText)  # remove the complemented char
+
+    def padding(self):
+        """
+        padding with PKCS5
+        calculate the missing length by mod and 
+        complement the missing bytes with unicode object
+        """
+        length = 16 - (len(self.plainText) % 16)
+        return length * chr(length).encode('utf8')
+
+    def unpadding(self, pText):
+        """
+        remove the complemented char with ord() function
+        ord()<--->chr()
+        """
+        # print(pText[-1])
+        return pText[0:-ord(pText[-1])]
+
+
+plainText = 'Yaoxi Liu 250941525'
+key = 'Sixteen byte key'
+mode = AES.MODE_CBC
+
+c = AESCrypto(plainText, key, mode)
+
+cipherText = c.Encrypt()
+
+decryptText = c.Decrypt(cipherText)
+
+print([hex(ord(x))for x in key])
+
+print(cipherText)
+
+print(decryptText)
+
