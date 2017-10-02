@@ -1,0 +1,6 @@
+plaintext: Yaoxi Liu 250941525
+key:['0x53', '0x69', '0x78', '0x74', '0x65', '0x65', '0x6e', '0x20', '0x62', '0x79', '0x74', '0x65', '0x20', '0x6b', '0x65', '0x79']
+IV:
+RW\xef\xc1\t\x94v\x1e\xd0aH\x8c\x82/\xea\xe2
+Ciphertext:
+-\x8aP\x9c\x81\xed\xfbK\x17\x06\xd8\x9f\xe3fi\xffk\\\xb06\xab\x90\x80\xfe\xe6V\x8f\xc3<bn 

@@ -1,0 +1,20 @@
+(a) Is VKGORNVTGBA a valid Enigma encryption of the plaintext SUPERSECURE?
+
+	Answer: No. In Enigma machine, a letter can be encyrpted to any other letters except to itself. The fifth letter in the plaintext and ciphertext are both 'R', which violates the rule of Enigma machine. So it is an invalid Enigma encryption.
+
+
+ (b) Is ABCDEFGHIJKLMONPQR a valid one-time pad encryption of WESTERNENGINEERING?
+
+ 	Answer: Yes. One-time pad encryption follows the rule that each letter of plaintext can be encrypted to any other letter according to the alphabetical number. Hence, the ciphertext is a valid one-time pad encryption as long as it has the same length to the plaintext.
+
+
+ (c) Let a={0xF2, 0x14, 0x72, 0xA9, 0x30, 0x4b, 0x03 } be a vector of
+bytes. Is a a valid DES ciphertext?
+	
+	Answer: No. The DES encryption uses 64-bit block(8bytes). So the ciphertext should be the multiple of 8 bytes. The given ciphertext is only 7 bytes, which is invalid for a DES encryption.
+
+ (d) Let b={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00} be a vector of bytes. Is b a valid AES
+ciphertext? Why or why not?
+
+	Answer: No. In the AES encryption, the block size will be 128 bits(16bytes), but the ciphertext provided has 17 bytes. The length of ciphertext in AES should be the multiple number of 16. So it is an invalid ciphertext.

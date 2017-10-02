@@ -1,0 +1,58 @@
+1. [8 marks] The hashes computed in Step 2
+	Answer:
+		The source code and the result is as follow:
+			import hashlib
+
+
+def MD5Hash(file):
+    """
+    hash file by MD5
+    """
+    with open(file, 'rb') as file:
+        md5hash = hashlib.md5()  # MD5 hash object
+        buf = file.read()  # read file
+        md5hash.update(buf)
+    return md5hash.hexdigest()
+
+
+def sha1Hash(file):
+    """
+    hash file by sha1 
+    """
+    with open(file, 'rb') as file:
+        sha1hash = hashlib.sha1()  # sha1 hash object
+        buf = file.read()  # read file
+        sha1hash.update(buf)
+    return sha1hash.hexdigest()
+
+
+print(MD5Hash('assignment1-evil'))
+print(MD5Hash('assignment1-good'))
+print(sha1Hash('assignment1-evil'))
+print(sha1Hash('assignment1-good'))
+
+
+result:
+cab09bcaf4f94ebff16e84404100df7d
+cab09bcaf4f94ebff16e84404100df7d
+3efe3c32598e173b20361b271d421b1a46e305fb
+08ea2403cf06550017becfe7b7659946f0b2c131
+
+2. [28 marks] An analysis of the results from the previous step. For each of the following,
+answer the question in one or two sentences:
+(a) [4 marks] What do the MD5 hashes suggest about these two files?
+	Answer:The MD5 hashes suggest that this two files are the same.
+
+(b) [4 marks] What do the SHA1 hashes suggest about these two files?
+	Answer:The sha1 hashes suggest that this two files are different.
+
+(c) [4 marks] Thinking about the answers to the previous two questions, which hash
+function is right? Which one is wrong? How can you tell?
+	Answer: The sha1 is right while the md5 is wrong. On one hand, the md5 is only 128 bits while sha1 has 160 bits, which means that md5 has a much higher possibilities to create collision. On the other hand, the sha1 should also create the same hashes if these two files are the same.
+
+(d) [4 marks] What security property is being violated here?
+	Answer: It violates the collision resistence. It should be hard to find any two messages that give the same hash.
+
+(e) [4 marks] Suggest a possible (evil) application of the ability to violate this security
+property?
+	Answer: 

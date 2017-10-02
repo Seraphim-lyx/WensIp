@@ -1,0 +1,25 @@
+(a) Prove that Enigma is not IND-EAV secure.
+
+	Answer: A sends two challenge messages(m0,m1) to B. The two messasges have the same length with repeated letters for each(e.g. m0 = xxxxxxxxxx, m1 = yyyyyyyyyy). B returns the ciphtertext C encrypted by Enigma. A can judge the right one from the ciphertext if the ciphertext contains letters the same as m0 or m1 because enigma must encrypt one letter to another different letter.
+
+
+
+(b) Prove that AES in CBC mode is not IND-CPA secure if the IV can be predicted
+by the adversary.
+	
+	Answer: If the IV is predictable by A, then A can just XOR the plaintext m0,m1
+	by the IV and send them to B for the ciphertext C0,C1. So A can just send the
+	origin challenge plaintext m0,m1 to B and get the ciphertext Cb. In this case, 
+	A can always win only by comparing the Cb to c0,c1, then it can judge the right
+	message.
+
+
+(c) Prove that AES in CBC mode is not IND-CCA2 secure, even if the adversary
+cannot predict the IV.
+
+	Answer: A sends two challenge messages to B and get the ciphertext Cb. Then 
+	A could simply add one letter to the Cb as Cb' and send the Cb' to be
+	decrypted. A could judge the right message according to which message is similar
+	to the Mb'. Because in CBC mode, AES will only use the IV to encrypt and decrypt the
+	message at the begin part of the text. Hence, most of the part in the text will be 
+	the same between (M0,M1) and the Mb'.
